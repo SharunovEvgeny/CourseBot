@@ -1,3 +1,4 @@
 django
 psycopg2
 python-dotenv
+aiogram
