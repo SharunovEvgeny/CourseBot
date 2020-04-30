@@ -35,6 +35,6 @@ class Team(models.Model):
 class BotUser(models.Model):
     language = models.CharField('язык пользовотеля', max_length=2)
     tg_id = models.BigIntegerField('id пользователя')
-    referral = models.OneToOneField("BotUser",on_delete=models.CASCADE,verbose_name="реферрал",null=True,blank=True)
+    referral = models.BigIntegerField("кто пригласил",null=True,blank=True)
     full_name = models.CharField('полное имя пользовотеля', max_length=100)
     username = models.CharField('имя пользователя', max_length=50,null=True,blank=True)
