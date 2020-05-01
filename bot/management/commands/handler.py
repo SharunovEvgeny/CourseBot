@@ -81,3 +81,8 @@ async def help_inline_button(call: CallbackQuery):
 async def help_commands(message: types.Message):
     text = await get_text_help()
     await message.reply(text=text, reply=False)
+
+#@dp.message_handler(commands=['Mathes'])
+#async def mathes_commands(message:types.Message):
+   # text = await get_mathes_now()
+#    await message.reply(text,reply=False)
