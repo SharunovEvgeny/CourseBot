@@ -17,7 +17,6 @@ async def register_user(message: types.Message):
         user.referral = message.get_args() if message.get_args() else None
         user.username = message.from_user.username
         user.full_name = message.from_user.full_name
-        user.language = "ru"
         user.save()
         text += "Здраствуйте"
     else:
@@ -31,25 +30,6 @@ https://t.me/{(await bot.me).username}?start={BotUser.objects.get(tg_id=message.
 Посмотрите матчи на сегодня /matches"""
     await message.answer(text,
                          reply_markup=await get_inline_first_keyboard())  # вызвает первый тип инлайн клавиатуры из файла functions
-
-
-# пользователь может задать язык
-@dp.message_handler(commands=["set_language"])
-async def lang(message: types.Message):
-    await message.answer("Выберете язык",
-                         reply_markup=await get_inline_language_keyboard())  # вызывает инлайн клавиатуру с выбором языка
-
-
-@dp.callback_query_handler(Button("ru"))  # обрабатывает язык введённый пользователем
-async def set_lang(call: CallbackQuery):
-    BotUser.objects.filter(tg_id=call.message.chat.id).update(language="ru")
-    await call.message.answer(f"Ваш язык успешно изменён на Русский")
-
-
-@dp.callback_query_handler(Button("en"))  # обрабатывает язык введённый пользователем
-async def set_lang(call: CallbackQuery):
-    BotUser.objects.filter(tg_id=call.message.chat.id).update(language="en")
-    await call.message.answer(f"Your language has been successfully changed to English")
 
 
 # печатает реферальную ссылку
