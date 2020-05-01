@@ -23,13 +23,16 @@ class Game(models.Model):
 
 
 class Player(models.Model):
+    full_name = models.CharField("Имя фамилия", max_length=255)
+    nickname = models.CharField("Ник в игре", max_length=255)
+    country = models.CharField("Страна", max_length=100)
     team = models.ForeignKey('Team', related_name='players', on_delete=models.CASCADE, verbose_name="Команда")
 
 
 class Team(models.Model):
     name = models.CharField("Название", max_length=50)
     power = models.FloatField("Сила")
-    time_change_compound = models.DateTimeField()
+    time_change_compound = models.DateTimeField("Время последнего изменения в составе команды", null=True, blank=True)
 
 
 class BotUser(models.Model):

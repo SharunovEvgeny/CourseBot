@@ -1,6 +1,7 @@
 version: '3.3'
 services:
   db:
+    container_name: database
     restart: always
     ports:
       - 5432:5432
@@ -10,6 +11,7 @@ services:
       POSTGRES_PASSWORD: example
 
   web:
+    container_name: server
     build: .
     command: python manage.py runserver 0.0.0.0:8000
       #python manage.py app

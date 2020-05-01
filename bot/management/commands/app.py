@@ -16,4 +16,6 @@ async def on_startup(dp):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         from .handler import dp
+        from bot.parser.liquipediaParser import update_players_and_teams
+        update_players_and_teams()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
