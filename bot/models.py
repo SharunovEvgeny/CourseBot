@@ -30,7 +30,7 @@ class Player(models.Model):
 
 
 class Team(models.Model):
-    name = models.CharField("Название", max_length=50)
+    name = models.CharField("Название", max_length=250)
     power = models.FloatField("Сила",default=0)
     time_change_compound = models.DateTimeField("Время последнего изменения в составе команды", null=True, blank=True)
 
