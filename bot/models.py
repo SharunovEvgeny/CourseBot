@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class Tier(models.Model):
     name = models.CharField("Название", max_length=100)
     coefficient = models.FloatField("Коэффицент")
@@ -34,3 +33,11 @@ class Team(models.Model):
     name = models.CharField("Название", max_length=50)
     power = models.FloatField("Сила")
     time_change_compound = models.DateTimeField()
+
+
+class BotUser(models.Model):
+    language = models.CharField('язык пользовотеля', max_length=2)
+    tg_id = models.BigIntegerField('id пользователя')
+    referral = models.BigIntegerField("кто пригласил",null=True,blank=True)
+    full_name = models.CharField('полное имя пользовотеля', max_length=100)
+    username = models.CharField('имя пользователя', max_length=50,null=True,blank=True)
