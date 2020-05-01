@@ -1,7 +1,7 @@
 import os
 from aiogram import types
 from .load_all import bot, dp
-from bot.models import BotUser
+from bot.models import BotUser, Team
 from .filters import *
 from .fuctions import *
 
@@ -22,6 +22,8 @@ async def register_user(message: types.Message):
         text += "Здраствуйте"
     else:
         text += "С возвращением"
+    players = Team.objects.get(id=1).players.all()
+    await message.answer("\n".join(list(players)))
     text += f""", это бот для прогнозов на матчи по Dota 2
 Всего пользователей {BotUser.objects.count()}
 Вы можете позвать друзей по своей сслыке:
