@@ -1,5 +1,6 @@
 from .keyboards import ListOfButtons
 
+from bot.models import MatchNow
 async def get_text_help():
     text = f"""Вы можете:
     1)Посмотреть комнады для управления: /help
@@ -22,6 +23,7 @@ async def get_inline_first_keyboard():
         align=[1, 2]
     ).inline_keyboard
    return keyboard
+
 
 async def get_inline_language_keyboard():
    keyboard = ListOfButtons(

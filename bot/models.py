@@ -15,8 +15,8 @@ class Tournament(models.Model):
 
 
 class Game(models.Model):
-    team1 = models.ForeignKey('Team', related_name='team1', on_delete=models.CASCADE, verbose_name="Команда 1")
-    team2 = models.ForeignKey('Team', related_name='team2', on_delete=models.CASCADE, verbose_name="Команда 2")
+    team1 = models.ForeignKey('Team', related_name='team1_game', on_delete=models.CASCADE, verbose_name="Команда 1")
+    team2 = models.ForeignKey('Team', related_name='team2_game', on_delete=models.CASCADE, verbose_name="Команда 2")
     team1_score = models.SmallIntegerField()
     team2_score = models.SmallIntegerField()
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, verbose_name="Турнир")
@@ -26,18 +26,26 @@ class Player(models.Model):
     full_name = models.CharField("Имя фамилия", max_length=255)
     nickname = models.CharField("Ник в игре", max_length=255)
     country = models.CharField("Страна", max_length=100)
-    team = models.ForeignKey('Team', related_name='players', on_delete=models.CASCADE, verbose_name="Команда")
+    team = models.ForeignKey('Team', related_name='players', on_delete=models.CASCADE, verbose_name="Команда",null=True,blank=True)
 
 
 class Team(models.Model):
     name = models.CharField("Название", max_length=50)
-    power = models.FloatField("Сила")
+    power = models.FloatField("Сила",default=0)
     time_change_compound = models.DateTimeField("Время последнего изменения в составе команды", null=True, blank=True)
 
 
+
 class BotUser(models.Model):
-    language = models.CharField('язык пользовотеля', max_length=2)
     tg_id = models.BigIntegerField('id пользователя')
     referral = models.BigIntegerField("кто пригласил",null=True,blank=True)
     full_name = models.CharField('полное имя пользовотеля', max_length=100)
     username = models.CharField('имя пользователя', max_length=50,null=True,blank=True)
+
+class MatchNow(models.Model):
+    team1 = models.ForeignKey('Team', related_name='team1', on_delete=models.CASCADE, verbose_name="Команда 1")
+    team2 = models.ForeignKey('Team', related_name='team2', on_delete=models.CASCADE, verbose_name="Команда 2")
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, verbose_name="Турнир")
+    format=models.CharField("формат",max_length=3)
+    predict=models.IntegerField("процент на победу")
+
