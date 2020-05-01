@@ -10,7 +10,7 @@ class Tier(models.Model):
 
     class Meta:
         verbose_name = "Тир турнира"
-        verbose_plural = "Тиры турнира"
+        verbose_name_plural = "Тиры турнира"
 
 
 class Tournament(models.Model):
@@ -22,7 +22,7 @@ class Tournament(models.Model):
 
     class Meta:
         verbose_name = "Турнир"
-        verbose_plural = "Турниры"
+        verbose_name_plural = "Турниры"
 
 class Game(models.Model):
     team1 = models.ForeignKey('Team', related_name='team1_game', on_delete=models.CASCADE, verbose_name="Команда 1")
@@ -39,7 +39,7 @@ class Game(models.Model):
 
     class Meta:
         verbose_name = "Игра"
-        verbose_plural = "Игры"
+        verbose_name_plural = "Игры"
 
 
 class Player(models.Model):
@@ -53,7 +53,7 @@ class Player(models.Model):
 
     class Meta:
         verbose_name = "Игрок"
-        verbose_plural = "Игроки"
+        verbose_name_plural = "Игроки"
 
 
 class Team(models.Model):
@@ -67,7 +67,7 @@ class Team(models.Model):
 
     class Meta:
         verbose_name = "Команда"
-        verbose_plural = "Команды"
+        verbose_name_plural = "Команды"
 
 
 class BotUser(models.Model):
@@ -81,5 +81,5 @@ class BotUser(models.Model):
 
     class Meta:
         verbose_name = "Пользователь бота"
-        verbose_plural = "Пользователи бота"
+        verbose_name_plural = "Пользователи бота"
 
