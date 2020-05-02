@@ -1,3 +1,5 @@
+import time
+
 from django.utils import timezone
 from liquipediapy import dota, counterstrike, liquipediapy
 
@@ -46,8 +48,9 @@ class LiquidpediaDotaParser:
 
     def update_played_games(self):
         teams = Team.objects.all()
+        time.sleep(2.1)
         for team in teams:
-            soup = self.lp.parse(f'{team.name}/Played_Matches')
+            soup, _ = self.lp.parse(f'{team.name}/Played_Matches')
             trs = soup.find_all('tr')
             for tr in trs:
                 tds = tr.find_all('td')
@@ -68,7 +71,7 @@ class LiquidpediaDotaParser:
                         data['score'] = [x[0], x[2]]
                     elif i == 6:
                         data['team2'] = td.text
-                if Game.objects.filer(starttime=data['start_time'], team2=team).count() == 0:
+                if Game.objects.filter(starttime=data['start_time'], team2=team).count() == 0:
                     Game.objects.create(team1=team, team2=Team.objects.get(name=data['team2']),
                                         team1_score=data['score'][0], team2_score=data['score'][1],
                                         tournament=data['tournament'], starttime=data['start_time'])
