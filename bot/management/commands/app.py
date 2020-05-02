@@ -16,6 +16,10 @@ async def on_startup(dp):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         from .handler import dp
-        # from bot.parser.liquipediaParser import update_players_and_teams
+        from bot.parser.liquipediaParser import LiquidpediaDotaParser
+        lp = LiquidpediaDotaParser('HSE Prediction telegram bot')
+        lp.parse_tournaments()
+        lp.update_played_games()
+        lp.update_ongoing_and_upcoming_games()
         # update_players_and_teams()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
