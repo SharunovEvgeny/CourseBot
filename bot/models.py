@@ -3,7 +3,7 @@ from django.db import models
 
 class Tier(models.Model):
     name = models.CharField("Название", max_length=100)
-    coefficient = models.FloatField("Коэффицент")
+    coefficient = models.FloatField("Коэффицент", null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -15,7 +15,7 @@ class Tier(models.Model):
 
 class Tournament(models.Model):
     name = models.CharField("Название", max_length=100)
-    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, verbose_name="Статус")
+    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, verbose_name="Статус", null=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -24,15 +24,16 @@ class Tournament(models.Model):
         verbose_name = "Турнир"
         verbose_name_plural = "Турниры"
 
+
 class Game(models.Model):
     team1 = models.ForeignKey('Team', related_name='team1_game', on_delete=models.CASCADE, verbose_name="Команда 1")
     team2 = models.ForeignKey('Team', related_name='team2_game', on_delete=models.CASCADE, verbose_name="Команда 2")
-    team1_score = models.SmallIntegerField("Очки первой команды")
-    team2_score = models.SmallIntegerField("Очки второй команды")
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, verbose_name="Турнир")
-    format = models.CharField("формат",max_length=3)
+    team1_score = models.SmallIntegerField("Очки первой команды", null=True, blank=True)
+    team2_score = models.SmallIntegerField("Очки второй команды", null=True, blank=True)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, verbose_name="Турнир", null=True, blank=True)
+    format = models.CharField("формат",max_length=3, null=True, blank=True)
     starttime = models.DateTimeField("Время игры")
-    predict = models.SmallIntegerField("процент на победу")
+    predict = models.SmallIntegerField("процент на победу первой команды", null=True, blank=True)
 
     def __str__(self):
         return f"{self.team1} X {self.team2}"
