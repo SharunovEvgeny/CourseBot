@@ -80,8 +80,8 @@ class LiquidpediaDotaParser:
     def update_ongoing_and_upcoming_games(self):
         games = self.dota_p.get_upcoming_and_ongoing_games()
         for game in games:
-            game_obj, g = Game.objects.get_or_create(team1=game['team1'], team2=game['team2'], format=game['format'],
-                                                     starttime=make_dt(game['start_time']))
+            game_obj, g = Game.objects.get_or_create(team1=Team.objects.get(name=game['team1']), team2=Team.objects.get(name=game['team2']),
+                                                     format=game['format'], starttime=make_dt(game['start_time']))
             game_obj.tournament, t = Tournament.objects.get_or_create(name=game['tournament'])
             game_obj.save()
 
