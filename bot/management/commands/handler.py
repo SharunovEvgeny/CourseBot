@@ -1,7 +1,7 @@
 import os
 from aiogram import types
 from .load_all import bot, dp
-from bot.models import BotUser, Team,Game
+from bot.models import BotUser, Team,GameNow,Game
 from .filters import *
 from .fuctions import *
 
@@ -21,8 +21,6 @@ async def register_user(message: types.Message):
         text += "Здраствуйте"
     else:
         text += "С возвращением"
-    players = list(Team.objects.get(link="Virtus.pro").Game.all())
-    await message.answer("\n".join(map(str, list(players))))
     text += f""", это бот для прогнозов на матчи по Dota 2
 Всего пользователей {BotUser.objects.count()}
 Вы можете позвать друзей по своей сслыке:
@@ -64,18 +62,16 @@ async def help_commands(message: types.Message):
     text = await get_text_help()
     await message.reply(text=text, reply=False)
 
-#@dp.message_handler(commands=['Mathes'])
-#async def mathes_commands(message:types.Message):
-   # text = await get_mathes_now()
-#    await message.reply(text,reply=False)
-@dp.message_handler(commands=["power"])
-async def calculate_power(message: types.message):
-    games=Game.objects.all()
+@dp.message_handler(commands=['matches'])
+async def mathes_commands(message:types.Message):
+    games=GameNow.objects.all()
     for game in games:
-        game.team1.power+=game.team1_score
-        game.team2.power+=game.team2_score
-        game.team1.save()
-        game.team2.save()
-    teams=Team.objects.all()
-    for team in teams:
-        await message.answer(f"{team.name}  {team.power}")
+        game.predict=((game.team1.power/(game.team2.power+game.team1.power))*100)//1
+        game.save()
+        await message.reply(f"""{game.team1} {game.format} {game.team2} 
+Название турнира: {game.tournament.name} тир турнира{game.tournament.tier}
+Начало игры: {game.starttime}
+Первая команды победит с шансом: {game.predict}%""", reply=False)
+
+
+
