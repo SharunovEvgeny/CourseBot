@@ -19,9 +19,8 @@ class Command(BaseCommand):
         from bot.parser.liquipediaParser import LiquidpediaDotaParser
 
         lp = LiquidpediaDotaParser('HSE Prediction telegram bot')
-        lp.update_players_and_teams()
+        #lp.update_teams()
         # lp.parse_tournaments()
-        lp.update_played_games()
-        lp.update_ongoing_and_upcoming_games()
-
+        #lp.update_played_games()
+        #lp.update_ongoing_and_upcoming_games()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
