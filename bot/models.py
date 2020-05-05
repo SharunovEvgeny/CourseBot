@@ -30,6 +30,21 @@ class Game(models.Model):
         verbose_name = "Игра"
         verbose_name_plural = "Игры"
 
+class GameNow(models.Model):
+    team1 = models.ForeignKey('Team', related_name='team1_now', on_delete=models.CASCADE, verbose_name="Команда 1")
+    team2 = models.ForeignKey('Team', related_name='team2_now', on_delete=models.CASCADE, verbose_name="Команда 2")
+    tournament = models.ForeignKey('Tournament', on_delete=models.CASCADE, verbose_name="Турнир", null=True, blank=True)
+    format = models.CharField("формат", max_length=3, null=True, blank=True)
+    starttime = models.DateTimeField("Время игры", null=True, blank=True)
+    predict = models.SmallIntegerField("процент на победу первой команды", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.team1} X {self.team2}"
+
+    class Meta:
+        verbose_name = "Игра Сейчас"
+        verbose_name_plural = "Игры Сейчас"
+
 
 class Player(models.Model):
     full_name = models.CharField("Имя фамилия", max_length=255)
