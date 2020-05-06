@@ -2,13 +2,18 @@ version: '3.3'
 services:
   db:
     container_name: database
-    restart: always
     ports:
       - 5432:5432
     #network_mode: "host"
     image: postgres
     environment:
       POSTGRES_PASSWORD: example
+    restart: always
+
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    restart: always
 
   web:
     container_name: server
@@ -21,6 +26,8 @@ services:
       - "80:80"
     depends_on:
       - db
+    restart: always
+
   bot:
     container_name: bot
     build: .
@@ -28,3 +35,23 @@ services:
       - .:/src
     command: python manage.py app
     restart: always
+
+  celery:
+    container_name: celery
+    build: .
+    command: celery -A adminka worker -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    container_name: celery-beat
+    build: .
+    command: celery -A adminka beat -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
