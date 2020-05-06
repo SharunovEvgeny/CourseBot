@@ -24,5 +24,6 @@ class Command(BaseCommand):
         #lp.update_teams()
         # lp.parse_tournaments()
         #lp.update_played_games()
-        lp.update_ongoing_and_upcoming_games()
+        #lp.chek_games()
+        #lp.update_ongoing_and_upcoming_games()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)

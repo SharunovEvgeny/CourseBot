@@ -4,7 +4,8 @@ from .load_all import bot, dp
 from bot.models import BotUser, Team,GameNow,Game
 from .filters import *
 from .fuctions import *
-
+from datetime import timedelta, datetime
+from django.utils import timezone
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 
@@ -23,7 +24,7 @@ async def register_user(message: types.Message):
         text += "С возвращением"
     text += f""", это бот для прогнозов на матчи по Dota 2
 Всего пользователей {BotUser.objects.count()}
-Вы можете позвать друзей по своей сслыке:
+Вы можете позвать друзей по своей ссылке:
 https://t.me/{(await bot.me).username}?start={BotUser.objects.get(tg_id=message.chat.id).id}
 Посмотрите матчи на сегодня /matches"""
     await message.answer(text,
@@ -33,7 +34,7 @@ https://t.me/{(await bot.me).username}?start={BotUser.objects.get(tg_id=message.
 # печатает реферальную ссылку
 @dp.message_handler(commands=["link"])
 async def check_referral_links(message: types.Message):
-    await message.answer(f"""Вы можете позвать друзей по своей сслыке:
+    await message.answer(f"""Вы можете позвать друзей по своей ссылке:
 https://t.me/{(await bot.me).username}?start={BotUser.objects.get(tg_id=message.chat.id).id}""")
 
 
@@ -65,12 +66,12 @@ async def help_commands(message: types.Message):
 @dp.message_handler(commands=['matches'])
 async def mathes_commands(message:types.Message):
     games=GameNow.objects.all()
+    time = timezone.now() + timedelta(hours=20)
     for game in games:
-        game.predict=((game.team1.power/(game.team2.power+game.team1.power))*100)//1
-        game.save()
-        await message.reply(f"""{game.team1} {game.format} {game.team2} 
-Название турнира: {game.tournament.name} тир турнира{game.tournament.tier}
-Начало игры: {game.starttime}
+        if game.starttime < time:
+            await message.reply(f"""{game.team1} {game.format} {game.team2} 
+Название турнира: {game.tournament.name}
+Начало игры: {game.starttime.strftime("%d.%m.%Y %H-%M")}
 Первая команды победит с шансом: {game.predict}%""", reply=False)
 
 
