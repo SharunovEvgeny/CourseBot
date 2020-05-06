@@ -13,12 +13,12 @@ services:
   web:
     container_name: server
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:80
       #python manage.py app
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "80:80"
     depends_on:
       - db
   bot:
