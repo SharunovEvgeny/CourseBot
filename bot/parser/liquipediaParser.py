@@ -6,19 +6,17 @@ from liquipediapy import dota, counterstrike, liquipediapy
 from bot.models import Player, Team, Game, Tournament, GameNow
 import requests
 from bs4 import BeautifulSoup, NavigableString
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 def make_dt(dt_str):
     from django.utils.timezone import get_current_timezone
-    from datetime import datetime
     tz = get_current_timezone()
     return tz.localize(datetime.strptime(dt_str, '%B %d, %Y - %H:%M %Z'))
 
 
 def make_dt_game(dt_str):
     from django.utils.timezone import get_current_timezone
-    from datetime import datetime
     tz = get_current_timezone()
     return tz.localize(datetime.strptime(dt_str, '%Y-%m-%d %H:%M %Z'))
 
@@ -58,12 +56,13 @@ class LiquidpediaDotaParser:
                 data_t = Tournament()
                 flag = 0
                 for i, td in enumerate(tds):
+                    print(data['start_time'], flush=True)
                     if i == 0:
                         text = td.text[:4]
                         if text == "":
                             flag = 1
                             continue
-                        if int(text) < 2020:
+                        if int(text) < datetime.now().year:
                             break
                         data['start_time'] += td.text + " "
                     elif i == 1:
@@ -77,7 +76,7 @@ class LiquidpediaDotaParser:
 
                     elif i == 2:
                         data['tier'] = td.text[2:]
-                    elif i == 3 and int(text) >= 2020:
+                    elif i == 3 and int(text) >= datetime.now().year:
                         data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=data['tier'])
                     # No, i don't forget i == 4, that is duplication!!!
                     elif i == 5:
@@ -90,7 +89,7 @@ class LiquidpediaDotaParser:
                         if data['score'][0] == "FF":
                             data['score'][0] = 0
                         if data['score'][1] == "W":
-                            data['score'][1] = 0
+                            data['score'][1] = 1
                     elif i == 6:
                         temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                         try:
@@ -99,13 +98,13 @@ class LiquidpediaDotaParser:
                             flag = 1
                             break
                 if flag == 0:
-                    if int(text) >= 2020:
+                    if int(text) >= datetime.now().year:
                         if Game.objects.filter(starttime=data['start_time'], team2=team).count() == 0:
                             Game.objects.create(team1=team, team2=data['team2'],
                                                 team1_score=data['score'][0], team2_score=data['score'][1],
                                                 tournament=data['tournament'], starttime=data['start_time'])
 
-    def chek_games(self):
+    def check_games(self):
         games = GameNow.objects.all()
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=5):
@@ -127,7 +126,7 @@ class LiquidpediaDotaParser:
                             if text == "":
                                 flag = 1
                                 continue
-                            if int(text) < 2020:
+                            if int(text) < datetime.now().year:
                                 break
                             data['start_time'] += td.text + " "
                         elif i == 1:
@@ -141,7 +140,7 @@ class LiquidpediaDotaParser:
 
                         elif i == 2:
                             data['tier'] = td.text[2:]
-                        elif i == 3 and int(text) >= 2020:
+                        elif i == 3 and int(text) >= datetime.now().year:
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=data['tier'])
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
@@ -154,7 +153,7 @@ class LiquidpediaDotaParser:
                             if data['score'][0] == "FF":
                                 data['score'][0] = 0
                             if data['score'][1] == "W":
-                                data['score'][1] = 0
+                                data['score'][1] = 1
                         elif i == 6:
                             temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                             try:
@@ -163,7 +162,7 @@ class LiquidpediaDotaParser:
                                 flag = 1
                                 break
                     if flag == 0:
-                        if int(text) >= 2020:
+                        if int(text) >= datetime.now().year:
                             if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count() == 0:
                                 Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
                                                          team1_score=data['score'][0], team2_score=data['score'][1],

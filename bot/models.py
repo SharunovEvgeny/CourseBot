@@ -80,6 +80,7 @@ class BotUser(models.Model):
     referral = models.BigIntegerField("кто пригласил", null=True, blank=True)
     full_name = models.CharField('полное имя пользовотеля', max_length=100)
     username = models.CharField('имя пользователя', max_length=50, null=True, blank=True)
+    is_admin = models.BooleanField("Админ ли?", default=False)
 
     def __str__(self):
         return f"{self.full_name} {self.username}"
