@@ -71,7 +71,7 @@ async def mathes_commands(message:types.Message):
         if game.starttime < time:
             await message.reply(f"""{game.team1} {game.format} {game.team2} 
 Название турнира: {game.tournament.name}
-Начало игры: {game.starttime.strftime("%d.%m.%Y %H-%M")}
+Начало игры: {timezone.localtime(game.starttime).strftime("%d.%m.%Y %H-%M")}
 Первая команды победит с шансом: {game.predict}%""", reply=False)
 
 
