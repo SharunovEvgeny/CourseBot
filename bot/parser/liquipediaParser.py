@@ -3,10 +3,10 @@ import time
 from django.utils import timezone
 from liquipediapy import dota, counterstrike, liquipediapy
 
-from bot.models import Player, Team, Game, Tournament, GameNow
-import requests
-from bs4 import BeautifulSoup, NavigableString
+from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
+
+from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict
 
 
 def make_dt(dt_str):
@@ -28,6 +28,7 @@ class LiquidpediaDotaParser:
         self.lp = liquipediapy(self.app_name, 'dota2')
 
     def update_teams(self):
+        Team.objects.all().delete()
         time.sleep(2.3)
         soup, _ = self.lp.parse("Portal:Teams")
         ts = soup.find_all(["span class", "a", "href"])
@@ -77,7 +78,8 @@ class LiquidpediaDotaParser:
                     elif i == 2:
                         data['tier'] = td.text[2:]
                     elif i == 3 and int(text) >= datetime.now().year:
-                        data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=data['tier'])
+                        tier = Tier.objects.get_or_create(name=data['tier'])
+                        data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
                     # No, i don't forget i == 4, that is duplication!!!
                     elif i == 5:
                         x = td.text.split()
@@ -100,9 +102,10 @@ class LiquidpediaDotaParser:
                 if flag == 0:
                     if int(text) >= datetime.now().year:
                         if Game.objects.filter(starttime=data['start_time'], team2=team).count() == 0:
-                            Game.objects.create(team1=team, team2=data['team2'],
-                                                team1_score=data['score'][0], team2_score=data['score'][1],
-                                                tournament=data['tournament'], starttime=data['start_time'])
+                            game = Game.objects.create(team1=team, team2=data['team2'],
+                                                       team1_score=data['score'][0], team2_score=data['score'][1],
+                                                       tournament=data['tournament'], starttime=data['start_time'])
+        calculate_all_teams_power()
 
     def check_games(self):
         games = GameNow.objects.all()
@@ -141,7 +144,8 @@ class LiquidpediaDotaParser:
                         elif i == 2:
                             data['tier'] = td.text[2:]
                         elif i == 3 and int(text) >= datetime.now().year:
-                            data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=data['tier'])
+                            tier = Tier.objects.get_or_create(name=data['tier'])
+                            data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
                             x = td.text.split()
@@ -164,9 +168,11 @@ class LiquidpediaDotaParser:
                     if flag == 0:
                         if int(text) >= datetime.now().year:
                             if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count() == 0:
-                                Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
-                                                         team1_score=data['score'][0], team2_score=data['score'][1],
-                                                         tournament=data['tournament'], starttime=data['start_time'])
+                                game, _ = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
+                                                           team1_score=data['score'][0], team2_score=data['score'][1],
+                                                           tournament=data['tournament'], starttime=data['start_time'])
+                                calculate_team_power(game.team1)
+                                calculate_team_power(game.team2)
 
     def update_ongoing_and_upcoming_games(self):
         GameNow.objects.all().delete()
@@ -182,6 +188,7 @@ class LiquidpediaDotaParser:
                                                         format=game['format'], starttime=make_dt(game['start_time']))
             game_obj.tournament, t = Tournament.objects.get_or_create(name=game['tournament'])
             game_obj.save()
+            game_obj.predict = game_predict(game_obj, Coefficient.objects.get(name='joint_games_cof'))
 
 
 if __name__ == "__main__":
