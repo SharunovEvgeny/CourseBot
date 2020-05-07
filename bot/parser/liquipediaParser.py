@@ -78,7 +78,7 @@ class LiquidpediaDotaParser:
                     elif i == 2:
                         data['tier'] = td.text[2:]
                     elif i == 3 and int(text) >= datetime.now().year:
-                        tier = Tier.objects.get_or_create(name=data['tier'])
+                        tier, _ = Tier.objects.get_or_create(name=data['tier'])
                         data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
                     # No, i don't forget i == 4, that is duplication!!!
                     elif i == 5:
