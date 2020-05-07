@@ -6,3 +6,4 @@ aiogram
 requests
 redis
 celery
+aioredis
