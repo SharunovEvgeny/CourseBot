@@ -1,4 +1,4 @@
-from bot.models import GameNow, Team, Game
+from bot.models import GameNow, Team, Game, Statistic
 
 
 def game_predict(game: GameNow, coef: float):
@@ -56,3 +56,38 @@ def calculate_all_teams_power():
         except:
             team.power = team.power / 1
         team.save()
+
+
+def statistics_collection(game: Game):
+    win = game.team1
+    predict = game.team1
+    statistic, _ = Statistic.objects.get_or_create(id=1)
+    if game.predict < 50:
+        predict = game.team2
+    if game.team1_score < game.team2_score:
+        win = game.team2
+    elif game.team1_score == game.team2_score:
+        statistic.bet_all += 1
+        statistic.unpredictable_bet_all += 1
+        if predict == 50:
+            statistic.unpredictable_bet_successful += 1
+            statistic.all_bet_successful += 1
+        return
+    success = True
+    if win != predict:
+        success = False
+    if 45 < game.predict < 55:
+        statistic.unpredictable_bet_all += 1
+        if success:
+            statistic.unpredictable_bet_successful += 1
+    elif (55 <= game.predict <= 65) or (35 <= game.predict <= 45):
+        statistic.risk_bet_all += 1
+        if success:
+            statistic.risk_bet_successful += 1
+    else:
+        statistic.safe_bet_all += 1
+        if success:
+            statistic.safe_bet_successful += 1
+    statistic.bet_all += 1
+    if success:
+        statistic.all_bet_successful += 1

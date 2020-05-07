@@ -1,6 +1,7 @@
+import typing
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.types import Message, CallbackQuery
-
+from aiogram import types
 from bot.management.commands.modules.custom_state import CustomState
 
 
