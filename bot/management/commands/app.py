@@ -27,8 +27,8 @@ class Command(BaseCommand):
         """
         from bot.parser.liquipediaParser import LiquidpediaDotaParser
         lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
-        lp.update_teams()
         if Game.objects.all().count()==0:
+            lp.update_teams()
             lp.update_played_games()
         else:
             lp.check_games()
