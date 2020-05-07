@@ -3,7 +3,7 @@ from django.core.management import BaseCommand
 from django.conf import settings
 
 from .load_all import bot
-from ...models import BotUser
+from ...models import BotUser, Game
 
 
 async def on_shutdown(dp):
@@ -28,7 +28,9 @@ class Command(BaseCommand):
         from bot.parser.liquipediaParser import LiquidpediaDotaParser
         lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
         lp.update_teams()
-        lp.update_played_games()
-        # lp.check_games()
+        if Game.objects.all().count()==0:
+            lp.update_played_games()
+        else:
+            lp.check_games()
         lp.update_ongoing_and_upcoming_games()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
