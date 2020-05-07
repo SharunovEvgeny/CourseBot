@@ -20,11 +20,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from .load_all import dp
 
-        """
-        Comment on, if you are starting bot at the first time,
-        then comment off, when bot started.
-        
-        """
         from bot.parser.liquipediaParser import LiquidpediaDotaParser
         lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
         if Game.objects.all().count()==0:
