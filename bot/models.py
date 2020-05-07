@@ -1,9 +1,33 @@
 from django.db import models
 
 
+class Coefficient(models.Model):
+    name = models.CharField("Тир", max_length=255)
+    value = models.FloatField("Значение")
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        verbose_name = "Коэфицент"
+        verbose_name_plural = "Коэфиценты"
+
+
+class Tier(models.Model):
+    name = models.CharField("Тир", max_length=100)
+    coefficient = models.FloatField("Коэфицент тира", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        verbose_name = "Тир"
+        verbose_name_plural = "Тиры"
+
+
 class Tournament(models.Model):
     name = models.CharField("Название", max_length=100)
-    tier = models.CharField("Tier", null=True, blank=True,max_length=50)
+    tier = models.ForeignKey("Tier", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -18,7 +42,7 @@ class Game(models.Model):
     team2 = models.ForeignKey('Team', related_name='team2_game', on_delete=models.CASCADE, verbose_name="Команда 2")
     team1_score = models.SmallIntegerField("Очки первой команды", null=True, blank=True)
     team2_score = models.SmallIntegerField("Очки второй команды", null=True, blank=True)
-    tournament = models.ForeignKey('Tournament',on_delete=models.CASCADE, verbose_name="Турнир", null=True, blank=True)
+    tournament = models.ForeignKey('Tournament', on_delete=models.CASCADE, verbose_name="Турнир", null=True, blank=True)
     format = models.CharField("формат", max_length=3, null=True, blank=True)
     starttime = models.DateTimeField("Время игры", null=True, blank=True)
     predict = models.SmallIntegerField("процент на победу первой команды", null=True, blank=True)
@@ -29,6 +53,7 @@ class Game(models.Model):
     class Meta:
         verbose_name = "Игра"
         verbose_name_plural = "Игры"
+
 
 class GameNow(models.Model):
     team1 = models.ForeignKey('Team', related_name='team1_now', on_delete=models.CASCADE, verbose_name="Команда 1")
@@ -63,7 +88,7 @@ class Player(models.Model):
 
 class Team(models.Model):
     name = models.CharField("Название", max_length=250)
-    link=models.CharField("Ссылка",max_length=60)
+    link = models.CharField("Ссылка", max_length=60)
     power = models.FloatField("Сила", default=0)
     time_change_compound = models.DateTimeField("Время последнего изменения в составе команды", null=True, blank=True)
 
