@@ -113,3 +113,14 @@ class BotUser(models.Model):
     class Meta:
         verbose_name = "Пользователь бота"
         verbose_name_plural = "Пользователи бота"
+
+
+class Statistic(models.Model):
+    risk_bet_successful = models.IntegerField('количество успешных рискованных ставок',default=0)
+    risk_bet_all = models.IntegerField('всего количетсво рискованных ставок',default=0)
+    safe_bet_successful = models.IntegerField('количество успешных сейвовых ставок',default=0)
+    safe_bet_all = models.IntegerField('всего количетсво сейвовых ставок',default=0)
+    unpredictable_bet_successful = models.IntegerField('количество непредсказуемых рискованных ставок',default=0)
+    unpredictable_bet_all = models.IntegerField('всего непредсказуемых рискованных ставок',default=0)
+    all_bet_successful = models.IntegerField('количество успешных ставок всего',default=0)
+    bet_all = models.IntegerField('всего количетсво  ставок',default=0)

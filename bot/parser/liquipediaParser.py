@@ -1,12 +1,12 @@
 import time
 
 from django.utils import timezone
-from liquipediapy import dota, counterstrike, liquipediapy
+from liquipediapy import dota, liquipediapy
 
 from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
 
-from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict
+from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict, statistics_collection
 
 
 def make_dt(dt_str):
@@ -168,11 +168,15 @@ class LiquidpediaDotaParser:
                     if flag == 0:
                         if int(text) >= datetime.now().year:
                             if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count() == 0:
-                                game, _ = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
+
+                                game_new, _ = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
                                                            team1_score=data['score'][0], team2_score=data['score'][1],
-                                                           tournament=data['tournament'], starttime=data['start_time'])
-                                calculate_team_power(game.team1)
-                                calculate_team_power(game.team2)
+                                                           tournament=data['tournament'], starttime=data['start_time'],predict=game.predict)
+
+                                calculate_team_power(game_new.team1)
+                                calculate_team_power(game_new.team2)
+                                statistics_collection(game_new)
+                                game.delete()
 
     def update_ongoing_and_upcoming_games(self):
         GameNow.objects.all().delete()

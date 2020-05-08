@@ -1,4 +1,6 @@
+
 import importlib
+
 import os
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -11,6 +13,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from .states import General
+
 from ...app import Context
 from ...modules.edit_or_send_message import edit_or_send_message
 
@@ -18,6 +21,7 @@ context = importlib.import_module('texts')
 conkb = importlib.import_module('keyboards')
 texts = Context(context)
 kbs = Context(conkb)
+
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
@@ -72,9 +76,11 @@ async def matches_(call, state: FSMContext):
             call, types.CallbackQuery) and call.data == 'prev' else game_id - 1:
         game_id += 1 if isinstance(call, types.CallbackQuery) and call.data == 'next' else -1 if isinstance(call,
                                                                                                             types.CallbackQuery) and call.data == 'prev' else 1
+
         game = games[game_id]
     text = (f"{game.tournament.name if game.tournament else ''}"
             f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}"
             f"{game.team1} {game.format} {game.team2}")
+
     kb = kbs.matches([f"{game.predict}%", f"{game.format}", f"{100 - game.predict}%"])
     await edit_or_send_message(bot, call, text=text, kb=kb)

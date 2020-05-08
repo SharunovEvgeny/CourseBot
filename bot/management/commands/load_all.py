@@ -6,8 +6,10 @@ from aiogram import Dispatcher
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 # from aiogram.contrib.fsm_storage.files import JSONStorage
 from .config import TOKEN
+
 from .modules.register_handlers import register_handlers
 import inspect
+
 
 """
 PATCHED_URL needs only if urs server is in Russia
@@ -17,6 +19,7 @@ PATCHED_URL needs only if urs server is in Russia
 """
 
 logging.basicConfig(level=logging.INFO)
+
 loop = asyncio.get_event_loop()
 # storage = JSONStorage("states.json")
 storage = RedisStorage2(host='redis')
