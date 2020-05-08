@@ -1,3 +1,4 @@
+
 from bot.models import GameNow, Team, Game, Statistic
 
 
@@ -56,7 +57,6 @@ def calculate_all_teams_power():
         except:
             team.power = team.power / 1
         team.save()
-
 
 def statistics_collection(game: Game):
     win = game.team1
