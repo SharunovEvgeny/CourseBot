@@ -15,7 +15,7 @@ class Coefficient(models.Model):
 
 class Tier(models.Model):
     name = models.CharField("Тир", max_length=100)
-    coefficient = models.FloatField("Коэфицент тира", null=True, blank=True)
+    coefficient = models.FloatField("Коэфицент тира", null=True, blank=True, default=1)
 
     def __str__(self):
         return f"{self.name}"
