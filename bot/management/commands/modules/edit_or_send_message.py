@@ -3,7 +3,7 @@ from aiogram.utils.exceptions import MessageNotModified
 
 
 async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None, text=None):
-    message = message_or_call if isinstance(types.Message, message_or_call) else message_or_call.message
+    message = message_or_call if isinstance(message_or_call, types.Message) else message_or_call.message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,

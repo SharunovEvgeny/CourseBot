@@ -8,7 +8,7 @@ import logging
 from .load_all import bot
 
 from ...models import BotUser, Game, Coefficient
-
+from ...prediction.functions import calculate_all_teams_power
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 
@@ -22,30 +22,10 @@ async def on_startup(dp):
     for admin in admins:
         await bot.send_message(admin.tg_id, "Bot is running!")
 
-class Context(object):
-    def __init__(self, _context_obj):
-        self._context_obj = _context_obj
-
-    def __getattr__(self, name):
-        r = getattr(self._context_obj, name, None)
-
-        if r is None:
-            return f"< {name} > not defined in context."
-
-        frame = inspect.currentframe()
-        try:
-            caller_locals = frame.f_back.f_locals
-            r = r.format_map(caller_locals)
-        finally:
-            del frame
-
-        return r
-
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        from .load_all import dp
-
+        from .dialogs.general.handlers import dp
         """
         Comment on, if you are starting bot at the first time,
         then comment off, when bot started.
@@ -61,6 +41,8 @@ class Command(BaseCommand):
             Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
             logging.info("Done updating games!")
         else:
+            Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
+            calculate_all_teams_power()
             logging.info("Starting checking games...")
             lp.check_games()
             logging.info("Done checking games!")
