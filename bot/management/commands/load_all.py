@@ -3,12 +3,11 @@ import logging
 
 from aiogram import Bot
 from aiogram import Dispatcher
+from aiogram.contrib.fsm_storage.files import JSONStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 # from aiogram.contrib.fsm_storage.files import JSONStorage
 from .config import TOKEN
 
-from .modules.register_handlers import register_handlers
-import inspect
 
 
 """
@@ -21,9 +20,8 @@ PATCHED_URL needs only if urs server is in Russia
 logging.basicConfig(level=logging.INFO)
 
 loop = asyncio.get_event_loop()
-# storage = JSONStorage("states.json")
+#storage = JSONStorage("states.json")
 storage = RedisStorage2(host='redis')
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot, storage=storage)
-for dialog in inspect.getmembers('dialogs', inspect.ismodule):
-    register_handlers(dp, inspect.getmembers(f"{dialog}.handlers", inspect.isfunction))
+

@@ -21,7 +21,9 @@ def game_predict(game: GameNow, coef: float):
         joint_games_cof *= (-1)
     elif score2 == score1:
         joint_games_cof = 0
-    predict = ((game.team1.power / (game.team1.power + game.team2.power) * 100) + joint_games_cof) // 1
+    predict=0
+    if game.team1.power+game.team2.power!=0:
+        predict = ((game.team1.power / (game.team1.power + game.team2.power) * 100) + joint_games_cof) // 1
     return predict
 
 
@@ -40,7 +42,7 @@ def calculate_team_power(team):
     calculate_power_cur_games(games1)
     calculate_power_cur_games(games2)
     try:
-        team.power = team.power / (team.team1_game.count() + team.team2_game.count())
+        team.power = team.power / (team.team1_game.all().count() + team.team2_game.all().count())
     except:
         team.power = team.power / 1
     team.save()
@@ -61,7 +63,7 @@ def calculate_all_teams_power():
 def statistics_collection(game: Game):
     win = game.team1
     predict = game.team1
-    statistic, _ = Statistic.objects.get_or_create(id=1)
+    statistic, _ = Statistic.objects.get_or_create(id=0)
     if game.predict < 50:
         predict = game.team2
     if game.team1_score < game.team2_score:
@@ -72,6 +74,7 @@ def statistics_collection(game: Game):
         if predict == 50:
             statistic.unpredictable_bet_successful += 1
             statistic.all_bet_successful += 1
+            statistic.save()
         return
     success = True
     if win != predict:
@@ -91,3 +94,4 @@ def statistics_collection(game: Game):
     statistic.bet_all += 1
     if success:
         statistic.all_bet_successful += 1
+    statistic.save()

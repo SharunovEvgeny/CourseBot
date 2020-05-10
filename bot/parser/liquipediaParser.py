@@ -144,7 +144,7 @@ class LiquidpediaDotaParser:
                         elif i == 2:
                             data['tier'] = td.text[2:]
                         elif i == 3 and int(text) >= datetime.now().year:
-                            tier = Tier.objects.get_or_create(name=data['tier'])
+                            tier, _ = Tier.objects.get_or_create(name=data['tier'])
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
@@ -167,19 +167,20 @@ class LiquidpediaDotaParser:
                                 break
                     if flag == 0:
                         if int(text) >= datetime.now().year:
-                            if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count() == 0:
+                            if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0:
 
-                                game_new, _ = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
+                                game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
                                                            team1_score=data['score'][0], team2_score=data['score'][1],
                                                            tournament=data['tournament'], starttime=data['start_time'],predict=game.predict)
-
-                                calculate_team_power(game_new.team1)
-                                calculate_team_power(game_new.team2)
-                                statistics_collection(game_new)
-                                game.delete()
+                                if is_created_now:
+                                    calculate_team_power(game_new.team1)
+                                    calculate_team_power(game_new.team2)
+                                    statistics_collection(game_new)
+                                    game.delete()
 
     def update_ongoing_and_upcoming_games(self):
         GameNow.objects.all().delete()
+        time.sleep(30)
         games = self.dota_p.get_upcoming_and_ongoing_games()
         for game in games:
             try:
@@ -193,6 +194,7 @@ class LiquidpediaDotaParser:
             game_obj.tournament, t = Tournament.objects.get_or_create(name=game['tournament'])
             game_obj.save()
             game_obj.predict = game_predict(game_obj, Coefficient.objects.get(name='joint_games_cof'))
+            game_obj.save()
 
 
 if __name__ == "__main__":
