@@ -57,7 +57,7 @@ async def referrals_(msg):
     await edit_or_send_message(bot, msg, text=text)
 
 @dp.callback_query_handler(Button("stat"))
-async def statistic(call):
+async def statistic(call: CallbackQuery):
     await edit_or_send_message(bot, call, text=await texts.stat(Statistic))
 
 @dp.callback_query_handler(Button("matches"))

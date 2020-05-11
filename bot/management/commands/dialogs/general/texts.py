@@ -24,18 +24,28 @@ async def link(BotUser, bot, msg_or_clb):
 
 
 async def matches(game):
-    a=len(f"{game.team1.name}")-2
-    b=len(f"{game.team2.name}")-2
-    texta="\t"*a
-    textb="\t"*b
+    a = len(f"{game.team1.name}") - 2
+    b = len(f"{game.team2.name}") - 2
+    texta = "\t" * a
+    textb = "\t" * b
     return (f"<code>{game.team1} {game.format} {game.team2}\n</code>"
-            f"<code>{game.predict}%{texta}{game.format}{textb}{100 - game.predict}%\n\n\n</code>"
-            f"{game.tournament.name}\n"
-            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n")
+            f"<code>{game.predict}%{texta}{game.format}{textb}{100 - game.predict}%\n</code>"
+            f"<code>{game.tournament.name}\n</code>"
+            f"<code>Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n</code>")
+
 
 async def stat(Statistic):
-    statistic=Statistic.get()
-    return (f"Надёжные ставки: {statistic.safe_bet_successful} / {statistic.safe_bet_all}"
-            f"Рискованных ставки: {statistic.risk_bet_successful} / {statistic.risk_bet_all}"
-            f"Непредсказуемые ставки: {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all}"
-            f"Всего ставок: {statistic.all_bet_successful} /{statistic.bet_all}")
+    statistic = Statistic.objects.get()
+    safe, risk, unpred, all = 0, 0, 0, 0
+    if statistic.bet_all != 0:
+        all = ((statistic.all_bet_successful / statistic.bet_all) * 100) // 1
+    if statistic.safe_bet_all != 0:
+        safe = ((statistic.safe_bet_successful / statistic.safe_bet_all) * 100) // 1
+    if statistic.risk_bet_all != 0:
+        risk = ((statistic.risk_bet_successful / statistic.risk_bet_all) * 100) // 1
+    if statistic.unpredictable_bet_all != 0:
+        unpred = ((statistic.unpredictable_bet_successful / statistic.unpredictable_bet_all) * 100) // 1
+    return (f"Всего ставок:                            {statistic.all_bet_successful} / {statistic.bet_all} {all}%\n"
+            f"Надёжные ставки:                  {statistic.safe_bet_successful} / {statistic.safe_bet_all} {safe}%\n"
+            f"Рискованных ставки:            {statistic.risk_bet_successful} / {statistic.risk_bet_all} {risk}%\n"
+            f"Непредсказуемые ставки: {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all} {unpred}%\n")
