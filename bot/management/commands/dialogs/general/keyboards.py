@@ -10,5 +10,8 @@ keyboard v 1.0
 help = KeyboardInline([{"Матчи": "matches", "Статистика": "stat"},
                        {"Помощь": "help"}]).get()
 
+matches = KeyboardInline([{"<-": "prev", "->": "next"},
+                          {"Меню": "menu"}]).get()
+
 # link = KeyboardInline([{"Назад": "back"}]).get()
 # referrals = link
