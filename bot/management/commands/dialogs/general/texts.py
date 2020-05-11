@@ -24,7 +24,18 @@ async def link(BotUser, bot, msg_or_clb):
 
 
 async def matches(game):
-    return (f"{game.tournament.name}\n"
-            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n"
-            f"{game.team1} {game.format} {game.team2}\n"
-            f"{game.predict}%   {game.format}   {100 - game.predict}%\n\n\n")
+    a=len(f"{game.team1.name}")-2
+    b=len(f"{game.team2.name}")-2
+    texta="\t"*a
+    textb="\t"*b
+    return (f"<code>{game.team1} {game.format} {game.team2}\n</code>"
+            f"<code>{game.predict}%{texta}{game.format}{textb}{100 - game.predict}%\n\n\n</code>"
+            f"{game.tournament.name}\n"
+            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n")
+
+async def stat(Statistic):
+    statistic=Statistic.get()
+    return (f"Надёжные ставки: {statistic.safe_bet_successful} / {statistic.safe_bet_all}"
+            f"Рискованных ставки: {statistic.risk_bet_successful} / {statistic.risk_bet_all}"
+            f"Непредсказуемые ставки: {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all}"
+            f"Всего ставок: {statistic.all_bet_successful} /{statistic.bet_all}")

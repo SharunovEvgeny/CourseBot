@@ -10,7 +10,7 @@ from aiogram.dispatcher.filters.state import StatesGroup
 
 from . import texts, keyboards
 from ...load_all import bot, dp
-from bot.models import BotUser, GameNow, Game
+from bot.models import BotUser, GameNow, Game,Statistic
 from bot.management.commands.modules.filters import *
 from datetime import timedelta
 from django.utils import timezone
@@ -56,10 +56,23 @@ async def referrals_(msg):
            f"{f'{n}'.join([f'@{user.username}' for user in BotUser.objects.all() if user.referral == cur_user_id])}"
     await edit_or_send_message(bot, msg, text=text)
 
+@dp.callback_query_handler(Button("stat"))
+async def statistic(call):
+    await edit_or_send_message(bot, call, text=await texts.stat(Statistic))
 
 @dp.callback_query_handler(Button("matches"))
-async def matches_(call: CallbackQuery):
+async def matches_(call, state: FSMContext):
+    if call.data == "None":
+        await call.answer()
+        return
+    game_id = (await state.get_data()).get('game_id')
+    if not game_id:
+        await state.set_data({'game_id': 0})
+        game_id = 0
     games = GameNow.objects.all()
+    game = games[game_id]
+    start_game_id = game_id
+    game_id += 1 if call.data == 'next' else -1 if call.data == 'prev' else 1
     text = ""
     for number, game in enumerate(games):
         if game.starttime < timezone.now() + timedelta(hours=20):
