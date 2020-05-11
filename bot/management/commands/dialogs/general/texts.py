@@ -45,7 +45,7 @@ async def stat(Statistic):
         risk = ((statistic.risk_bet_successful / statistic.risk_bet_all) * 100) // 1
     if statistic.unpredictable_bet_all != 0:
         unpred = ((statistic.unpredictable_bet_successful / statistic.unpredictable_bet_all) * 100) // 1
-    return (f"Всего ставок:                            {statistic.all_bet_successful} / {statistic.bet_all} {all}%\n"
-            f"Надёжные ставки:                  {statistic.safe_bet_successful} / {statistic.safe_bet_all} {safe}%\n"
-            f"Рискованных ставки:            {statistic.risk_bet_successful} / {statistic.risk_bet_all} {risk}%\n"
-            f"Непредсказуемые ставки: {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all} {unpred}%\n")
+    return (f"Всего ставок:  {statistic.all_bet_successful} / {statistic.bet_all}  {all}%\n\n"
+            f"Надёжные ставки:  {statistic.safe_bet_successful} / {statistic.safe_bet_all}  {safe}%\n\n"
+            f"Рискованных ставки:  {statistic.risk_bet_successful} / {statistic.risk_bet_all}  {risk}%\n\n"
+            f"Непредсказуемые ставки:  {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all}  {unpred}%\n\n")

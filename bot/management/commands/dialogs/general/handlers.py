@@ -68,7 +68,7 @@ async def statistic(call: CallbackQuery):
     await edit_or_send_message(bot, call, text=await texts.stat(Statistic))
 
 
-def get_game_id(state):
+async def get_game_id(state):
     game_id = (await state.get_data()).get('game_id')
     if not game_id:
         await state.set_data({'game_id': 0})
@@ -78,25 +78,24 @@ def get_game_id(state):
 
 @dp.callback_query_handler(Button("matches"), state='*')
 async def matches_(call, state: FSMContext, games=None):
-    game_id = get_game_id(state)
-    games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))[game_id:][:OFFSET] if not games else games
+    game_id = await get_game_id(state)
+    games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))[game_id:][:OFFSET] if not games else games[game_id:][:OFFSET]
     text = "".join([await texts.matches(game) for game in games])
     await edit_or_send_message(bot, call, text=text, kb=keyboards.matches)
 
 
 @dp.callback_query_handler(Button("next"), state='*')
 async def next_(call, state: FSMContext):
-    game_id = get_game_id(state)
+    game_id = await get_game_id(state)
     games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))
-    game_id = game_id + OFFSET if game_id < len(games) - 1 - OFFSET else 0
+    game_id = game_id + OFFSET if game_id < len(games) - OFFSET else 0
     await state.set_data({'game_id': game_id})
     await matches_(call, state, games)
 
-
 @dp.callback_query_handler(Button("prev"), state='*')
 async def prev_(call, state: FSMContext):
-    game_id = get_game_id(state)
+    game_id = await get_game_id(state)
     games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))
-    game_id = game_id - OFFSET if game_id - OFFSET > 0 else len(games) - 1
+    game_id = game_id - OFFSET if game_id - OFFSET >= 0 else len(games) -1-(len(games)-1)%OFFSET
     await state.set_data({'game_id': game_id})
     await matches_(call, state, games)
