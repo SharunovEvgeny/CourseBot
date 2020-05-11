@@ -39,9 +39,10 @@ class Command(BaseCommand):
             lp.update_teams()
             lp.update_played_games()
             Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
+            Coefficient.objects.get_or_create(name='format_cof', value=5)
             logging.info("Done updating games!")
         else:
-            Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
+            #Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
             calculate_all_teams_power()
             logging.info("Starting checking games...")
             lp.check_games()

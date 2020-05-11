@@ -193,7 +193,7 @@ class LiquidpediaDotaParser:
                                                         format=game['format'], starttime=make_dt(game['start_time']))
             game_obj.tournament, t = Tournament.objects.get_or_create(name=game['tournament'])
             game_obj.save()
-            game_obj.predict = game_predict(game_obj, Coefficient.objects.get(name='joint_games_cof'))
+            game_obj.predict = game_predict(game_obj)
             game_obj.save()
 
 
