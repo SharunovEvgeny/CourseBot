@@ -25,47 +25,46 @@ OFFSET = 3
 async def start_(message: types.Message):
     user, is_created_now = BotUser.objects.get_or_create(tg_id=message.chat.id)
     text = ""
-
     # Если пользователь новый то создаёт его в базе данных
     if is_created_now:
         user.referral = message.get_args() if message.get_args() else None
         user.username = message.from_user.username
         user.full_name = message.from_user.full_name
         user.save()
-        text += f"Здраствуйте, {user.full_name}"
+        text += f"Здраствуйте! {user.full_name}\n"
     else:
-        text += f"С возвращением, {user.full_name}"
-    text += await texts.start(BotUser, user, bot)
-    await edit_or_send_message(bot, message, text=text, kb=keyboards.help)
+        text += f"С возвращением! {user.full_name}\n"
+    text += await texts.menu(BotUser, user, bot)
+    await edit_or_send_message(bot, message, text=text, kb=keyboards.menu)
 
 
 @dp.callback_query_handler(Button("menu"), state='*')
 async def prev_(call):
-    await start_(call.message)
+    await help_(call.message)
 
 
-@dp.message_handler(commands=['help'], state='*')
+@dp.callback_query_handler(Button("help"), state='*')
 async def help_(message: types.Message):
-    await edit_or_send_message(bot, message, text=await texts.help(), kb=keyboards.help)
+    await edit_or_send_message(bot, message, text=await texts.menu(BotUser, BotUser.objects.get(tg_id=message.chat.id), bot), kb=keyboards.menu)
 
 
-@dp.message_handler(commands=['link'], state='*')
-async def link_(msg: types.Message):
-    await edit_or_send_message(bot, msg, text=await texts.link(BotUser, bot, msg))
+@dp.callback_query_handler(Button("link"), state='*')
+async def link_(call: CallbackQuery):
+    await edit_or_send_message(bot, call, text=await texts.link(BotUser, bot, call), kb=keyboards.back)
 
 
-@dp.message_handler(commands=['referrals'], state='*')
-async def referrals_(msg):
-    cur_user_id = BotUser.objects.get(tg_id=msg.chat.id).id
+@dp.callback_query_handler(Button("ref"), state='*')
+async def referrals_(call: CallbackQuery):
+    cur_user_id = BotUser.objects.get(tg_id=call.message.chat.id).id
     n = '\n'
     text = f"Ваши реффералы:\n" \
            f"{f'{n}'.join([f'@{user.username}' for user in BotUser.objects.all() if user.referral == cur_user_id])}"
-    await edit_or_send_message(bot, msg, text=text)
+    await edit_or_send_message(bot, call, text=text,kb=keyboards.back)
 
 
 @dp.callback_query_handler(Button("stat"), state='*')
 async def statistic(call: CallbackQuery):
-    await edit_or_send_message(bot, call, text=await texts.stat(Statistic))
+    await edit_or_send_message(bot, call, text=await texts.stat(Statistic), kb=keyboards.back)
 
 
 async def get_game_id(state):
