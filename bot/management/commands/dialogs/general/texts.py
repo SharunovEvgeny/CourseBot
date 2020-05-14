@@ -1,6 +1,5 @@
 from django.utils import timezone
 
-
 async def menu(BotUser, user, bot):
     return ("Это бот для <b>прогнозов на матчи по Dota 2 🥳</b>\n"
             f"Всего пользователей {BotUser.objects.count()}\n"
@@ -18,14 +17,11 @@ async def link(BotUser, bot, call):
 
 
 async def matches(game):
-    a = len(f"{game.team1.name}") - 2
-    b = len(f"{game.team2.name}") - 2
-    texta = "\t" * a
-    textb = "\t" * b
-    return (f"<code>{game.team1} {game.format} {game.team2}\n</code>"
-            f"<code>{game.predict}%{texta}{game.format}{textb}{100 - game.predict}%\n</code>"
-            f"<code>{game.tournament.name}\n</code>"
-            f"<code>Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n</code>")
+    return (f"{game.team1} <b>{game.predict}%</b>\n"
+            f"<b>ФОРМАТ: {game.format}</b>\n"
+            f"{game.team2} <b>{100 - game.predict}%</b>\n"
+            f"{game.tournament.name}\n"
+            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n")
 
 
 async def stat(Statistic):
