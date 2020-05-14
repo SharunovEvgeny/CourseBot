@@ -79,7 +79,7 @@ async def get_game_id(state):
 async def matches_(call, state: FSMContext, games=None):
     game_id = await get_game_id(state)
     games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))[game_id:][:OFFSET] if not games else games[game_id:][:OFFSET]
-    text = f"<b>Стараница {game_id//OFFSET}</b>\n"
+    text = f"<b>Страница №{(game_id//OFFSET)+1}</b>\n"
     text += "".join([await texts.matches(game) for game in games])
     await edit_or_send_message(bot, call, text=text, kb=keyboards.matches)
 

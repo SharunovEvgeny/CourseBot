@@ -18,7 +18,7 @@ async def link(BotUser, bot, call):
 
 async def matches(game):
     return (f"{game.team1} <b>{game.predict}%</b>\n"
-            f"<b>ФОРМАТ: {game.format}</b>\n"
+            f"<b>Формат: {game.format}</b>\n"
             f"{game.team2} <b>{100 - game.predict}%</b>\n"
             f"{game.tournament.name}\n"
             f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n")
