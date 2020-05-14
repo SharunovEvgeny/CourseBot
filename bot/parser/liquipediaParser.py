@@ -110,7 +110,7 @@ class LiquidpediaDotaParser:
     def check_games(self):
         games = GameNow.objects.all()
         for game in games:
-            if timezone.now() > game.starttime + timedelta(hours=5):
+            if timezone.now() > game.starttime + timedelta(hours=3):
                 time.sleep(40)
                 try:
                     soup, _ = self.lp.parse(f'{game.team1.link}/Played_Matches')
@@ -145,7 +145,9 @@ class LiquidpediaDotaParser:
                             data['tier'] = td.text[2:]
                         elif i == 3 and int(text) >= datetime.now().year:
                             tier, _ = Tier.objects.get_or_create(name=data['tier'])
-                            data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
+                            data['tournament'], p = Tournament.objects.get_or_create(name=td.text)
+                            data['tournament'].tier=tier
+                            data['tournament'].save()
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
                             x = td.text.split()
