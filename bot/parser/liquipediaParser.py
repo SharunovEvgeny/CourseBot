@@ -115,7 +115,11 @@ class LiquidpediaDotaParser:
                 try:
                     soup, _ = self.lp.parse(f'{game.team1.link}/Played_Matches')
                 except:
-                    continue
+                    try:
+                        soup, _ =self.lp.parse(f'{game.team2.link}/Played_Matches')
+                    except:
+                        game.delete()
+                        continue
                 trs = soup.find_all('tr')
                 for tr in trs:
                     tds = tr.find_all('td')
