@@ -175,7 +175,7 @@ class LiquidpediaDotaParser:
                         if int(text) >= datetime.now().year:
                             if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0:
 
-                                game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=data['team2'],
+                                game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=game.team2,
                                                            team1_score=data['score'][0], team2_score=data['score'][1],
                                                            tournament=data['tournament'], starttime=data['start_time'],predict=game.predict)
                                 if is_created_now:
