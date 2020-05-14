@@ -55,13 +55,13 @@ def calculate_team_power(team):
     games1 = Game.objects.filter(team1=team)
     games2 = Game.objects.filter(team2=team)
     for game1 in games1:
-        tier=game1.tournament.tier
-        game1.team1.power+=game1.team1_score*tier.coefficient
-        game1.team1.save()
+        tier = game1.tournament.tier
+        team.power += game1.team1_score*tier.coefficient
+        team.save()
     for game2 in games2:
         tier = game2.tournament.tier
-        game2.team2.power += game2.team2_score * tier.coefficient
-        game2.team2.save()
+        team.power += game2.team2_score * tier.coefficient
+        team.save()
     try:
         team.power = team.power / (team.team1_game.count() + team.team2_game.count())
     except:
