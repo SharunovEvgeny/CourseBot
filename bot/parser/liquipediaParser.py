@@ -112,11 +112,13 @@ class LiquidpediaDotaParser:
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=3):
                 time.sleep(40)
+                flag2=0
                 try:
                     soup, _ = self.lp.parse(f'{game.team1.link}/Played_Matches')
                 except:
                     try:
                         soup, _ =self.lp.parse(f'{game.team2.link}/Played_Matches')
+                        flag2=1
                     except:
                         game.delete()
                         continue
@@ -173,7 +175,7 @@ class LiquidpediaDotaParser:
                                 break
                     if flag == 0:
                         if int(text) >= datetime.now().year:
-                            if Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0:
+                            if (Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0 and flag2==0) or (Game.objects.filter(starttime=data['start_time'], team2=game.team2).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() == 0 and flag2==1):
 
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=game.team2,
                                                            team1_score=data['score'][0], team2_score=data['score'][1],
