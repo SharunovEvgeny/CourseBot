@@ -182,7 +182,7 @@ class LiquidpediaDotaParser:
                                     calculate_team_power(game_new.team1)
                                     calculate_team_power(game_new.team2)
                                     statistics_collection(game_new)
-                                    game.delete()
+                                    GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
 
     def update_ongoing_and_upcoming_games(self):
         GameNow.objects.all().delete()
