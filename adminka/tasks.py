@@ -13,12 +13,6 @@ def check_is_games_end(**kwargs):
     return {"status": True}
 
 
-@celery_app.task
-def update_ongoing_and_upcoming_games(**kwargs):
-    lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
-    lp.update_ongoing_and_upcoming_games()
-    return {"status": True}
-
 
 @celery_app.task
 def update_played_games(**kwargs):

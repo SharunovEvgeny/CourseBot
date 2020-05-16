@@ -41,12 +41,9 @@ class Command(BaseCommand):
             Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
             Coefficient.objects.get_or_create(name='format_cof', value=5)
             logging.info("Done updating games!")
-        else:
-            #Coefficient.objects.get_or_create(name='joint_games_cof', value=15)
-            calculate_all_teams_power()
-            logging.info("Starting checking games...")
-            lp.check_games()
-            logging.info("Done checking games!")
-
+        calculate_all_teams_power()
+        logging.info("Starting checking games...")
+        lp.check_games()
+        logging.info("Done checking games!")
         lp.update_ongoing_and_upcoming_games()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
