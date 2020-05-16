@@ -1,5 +1,6 @@
 from django.utils import timezone
 
+
 async def menu(BotUser, user, bot):
     return ("Это бот для <b>прогнозов на матчи по Dota 2 🥳</b>\n"
             f"Всего пользователей {BotUser.objects.count()}\n"
@@ -10,10 +11,8 @@ async def menu(BotUser, user, bot):
             f"Посмотрите реферралов по кнопке <b>Реферралы</b>")
 
 
-
-async def link(BotUser, bot, call):
-    return (f"Вы можете позвать друзей по своей ссылке:\n"
-            f"https://t.me/{(await bot.me).username}?start={BotUser.objects.get(tg_id=call.message.chat.id).id}")
+async def info(number):
+    return f"<b>Страница №{number}</b>"
 
 
 async def matches(game):

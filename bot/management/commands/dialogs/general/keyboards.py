@@ -1,5 +1,5 @@
 from bot.management.commands.modules.keyboard import KeyboardInline, KeyboardReply
-from bot.models import Game
+from bot.models import Game, Team
 
 """
 keyboard v 1.0
@@ -8,11 +8,22 @@ keyboard v 1.0
 """
 
 menu = KeyboardInline([{"Матчи": "matches", "Статистика": "stat"},
-                       {"Ссылка": "link", "Рефераллы": "ref"}]).get()
+                       {"Информация": "info", "Рефераллы": "ref"}]).get()
 
 matches = KeyboardInline([{"<-": "prev", "->": "next"},
                           {"Меню": "menu"}]).get()
 
-back = KeyboardInline([{"Меню":"menu"}]).get()
-# link = KeyboardInline([{"Назад": "back"}]).get()
-# referrals = link
+back = KeyboardInline([{"Меню": "menu"}]).get()
+
+
+async def info(teams_db, team_id):
+    teams = []
+    tmp = {}
+    for i, team in enumerate(teams_db[team_id:][:9]):
+        tmp.update({team.name: f"team:{team.id}"})
+        if (i+1) % 3 == 0:
+            teams.append(tmp)
+            tmp = {}
+    teams.append({"<-": "team:prev", "->": "team:next"})
+    teams.append({"Меню": "menu"})
+    return KeyboardInline(teams).get()
