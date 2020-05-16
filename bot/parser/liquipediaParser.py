@@ -2,7 +2,7 @@ import time
 
 from django.utils import timezone
 from liquipediapy import dota, liquipediapy
-
+from django.conf import settings
 from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
 
@@ -20,6 +20,9 @@ def make_dt_game(dt_str):
     tz = get_current_timezone()
     return tz.localize(datetime.strptime(dt_str, '%Y-%m-%d %H:%M %Z'))
 
+def update_new_games():
+    lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
+    lp.update_ongoing_and_upcoming_games()
 
 class LiquidpediaDotaParser:
     def __init__(self, app_name):
@@ -109,16 +112,19 @@ class LiquidpediaDotaParser:
 
     def check_games(self):
         games = GameNow.objects.all()
+        was_there_a_new_game=False
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=3):
                 time.sleep(40)
-                flag2=0
+                if timezone.now() > game.starttime+timedelta(hours=10):
+                    GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
+                flag2=False
                 try:
                     soup, _ = self.lp.parse(f'{game.team1.link}/Played_Matches')
                 except:
                     try:
                         soup, _ =self.lp.parse(f'{game.team2.link}/Played_Matches')
-                        flag2=1
+                        flag2=True
                     except:
                         game.delete()
                         continue
@@ -128,12 +134,12 @@ class LiquidpediaDotaParser:
                     data = {'start_time': "", "tier": None, 'tournament': None, 'score': [], 'team2': ""}
                     text = 0
                     data_t = Tournament()
-                    flag = 0
+                    flag = True
                     for i, td in enumerate(tds):
                         if i == 0:
                             text = td.text[:4]
                             if text == "":
-                                flag = 1
+                                flag = True
                                 continue
                             if int(text) < datetime.now().year:
                                 break
@@ -143,7 +149,7 @@ class LiquidpediaDotaParser:
                             try:
                                 make_dt_game(data['start_time'])
                             except:
-                                flag = 1
+                                flag = True
                                 break
                             data['start_time'] = make_dt_game(data['start_time'])
 
@@ -171,12 +177,13 @@ class LiquidpediaDotaParser:
                             try:
                                 data['team2'] = Team.objects.get(link=temp)
                             except:
-                                flag = 1
+                                flag = True
                                 break
-                    if flag == 0:
+                    if flag == False:
                         if int(text) >= datetime.now().year:
-                            if (Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0 and flag2==0) or (Game.objects.filter(starttime=data['start_time'], team2=game.team2).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() == 0 and flag2==1):
-
+                            if (Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0 and flag2==False) or (Game.objects.filter(starttime=data['start_time'], team2=game.team2).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() == 0 and flag2==True):
+                                if game.starttime!=data["start_time"]:
+                                    continue
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=game.team2,
                                                            team1_score=data['score'][0], team2_score=data['score'][1],
                                                            tournament=data['tournament'], starttime=data['start_time'],predict=game.predict)
@@ -184,10 +191,11 @@ class LiquidpediaDotaParser:
                                     calculate_team_power(game_new.team1)
                                     calculate_team_power(game_new.team2)
                                     statistics_collection(game_new)
+                                    was_there_a_new_game=True
                                     GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
-
+        if was_there_a_new_game==True:
+            update_new_games()
     def update_ongoing_and_upcoming_games(self):
-        GameNow.objects.all().delete()
         time.sleep(30)
         games = self.dota_p.get_upcoming_and_ongoing_games()
         for game in games:

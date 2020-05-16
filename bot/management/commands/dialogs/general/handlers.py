@@ -77,6 +77,7 @@ async def get_game_id(state):
 
 @dp.callback_query_handler(Button("matches"), state='*')
 async def matches_(call, state: FSMContext, games=None):
+    GameNow.objects.order_by("starttime")
     game_id = await get_game_id(state)
     games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))[game_id:][:OFFSET] if not games else games[game_id:][:OFFSET]
     text = f"<b>Страница №{(game_id//OFFSET)+1}</b>\n"
