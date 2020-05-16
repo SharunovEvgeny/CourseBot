@@ -180,11 +180,12 @@ class LiquidpediaDotaParser:
                         if int(year) >= datetime.now().year:
                             if (Game.objects.filter(starttime=data['start_time'],
                                                     team2=game.team1).count() + Game.objects.filter(
-                                    starttime=data['start_time'],
-                                    team1=game.team1).count() == 0 and is_second_link == False) or (
+                                starttime=data['start_time'],
+                                team1=game.team1).count() == 0 and is_second_link == False) or (
                                     Game.objects.filter(starttime=data['start_time'],
                                                         team2=game.team2).count() + Game.objects.filter(
-                                    starttime=data['start_time'], team1=game.team2).count() == 0 and is_second_link == True):
+                                starttime=data['start_time'],
+                                team1=game.team2).count() == 0 and is_second_link == True):
                                 if game.starttime != data["start_time"]:
                                     continue
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
@@ -209,13 +210,20 @@ class LiquidpediaDotaParser:
         games = self.dota_p.get_upcoming_and_ongoing_games()
         for game in games:
             try:
-                name1 = Team.objects.get(name=game['team1'])
-                name2 = Team.objects.get(name=game['team2'])
+                team1 = Team.objects.get(name=game['team1'])
+                team2 = Team.objects.get(name=game['team2'])
             except:
                 continue
-            game_obj, g = GameNow.objects.get_or_create(team1=Team.objects.get(name=game['team1']),
-                                                        team2=Team.objects.get(name=game['team2']),
-                                                        format=game['format'], starttime=make_dt(game['start_time']))
+            GameNow.objects.filter(team1=team1,
+                                   team2=team2,
+                                   starttime__range=(make_dt(game['start_time']) - timedelta(minutes=50),
+                                                     make_dt(game['start_time']) + timedelta(minutes=50))).delete()
+
+            game_obj, g = GameNow.objects.get_or_create(team1=team1,
+                                                        team2=team2,
+                                                        format=game['format'],
+                                                        starttime=make_dt(game['start_time']))
+
             game_obj.tournament, t = Tournament.objects.get_or_create(name=game['tournament'])
             game_obj.save()
             game_obj.predict = game_predict(game_obj)
