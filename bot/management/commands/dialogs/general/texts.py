@@ -11,8 +11,8 @@ async def menu(BotUser, user, bot):
             f"Посмотрите реферралов по кнопке <b>Реферралы</b>")
 
 
-async def info():
-    return "Команды:"
+async def info(number):
+    return f"<b>Страница №{number}</b>"
 
 
 async def matches(game):

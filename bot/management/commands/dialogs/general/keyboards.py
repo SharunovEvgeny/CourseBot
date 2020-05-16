@@ -21,7 +21,7 @@ async def info(teams_db, team_id):
     tmp = {}
     for i, team in enumerate(teams_db[team_id:][:9]):
         tmp.update({team.name: f"team:{team.id}"})
-        if i % 3 == 0 and i != 0:
+        if (i+1) % 3 == 0:
             teams.append(tmp)
             tmp = {}
     teams.append({"<-": "team:prev", "->": "team:next"})

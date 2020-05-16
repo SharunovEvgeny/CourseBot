@@ -53,8 +53,8 @@ async def help_(message: types.Message):
 @dp.callback_query_handler(Button("info"), state='*')
 async def info_(call: CallbackQuery, state: FSMContext, teams=None, team_id=None):
     if not teams:
-        teams = Team.objects.order_by('power')
-    await edit_or_send_message(bot, call, text=await texts.info(), kb=await keyboards.info(teams, team_id))
+        teams = Team.objects.order_by('-power')
+    await edit_or_send_message(bot, call, text=await texts.info(team_id//9+1), kb=await keyboards.info(teams, team_id))
 
 
 @dp.callback_query_handler(Button("ref"), state='*')

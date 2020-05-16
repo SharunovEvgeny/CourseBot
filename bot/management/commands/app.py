@@ -26,6 +26,7 @@ async def on_startup(dp):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         from .dialogs.general.handlers import dp
+        from .dialogs.information.handlers import dp
         """
         Comment on, if you are starting bot at the first time,
         then comment off, when bot started.
@@ -43,7 +44,7 @@ class Command(BaseCommand):
             logging.info("Done updating games!")
         calculate_all_teams_power()
         logging.info("Starting checking games...")
-        lp.check_games()
+        # lp.check_games()
         logging.info("Done checking games!")
         lp.update_ongoing_and_upcoming_games()
         executor.start_polling(dp, on_shutdown=on_shutdown, on_startup=on_startup, skip_updates=True)
