@@ -6,7 +6,8 @@ from django.conf import settings
 from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
 
-from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict, statistics_collection
+from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict, \
+    statistics_collection
 
 
 def make_dt(dt_str):
@@ -20,9 +21,6 @@ def make_dt_game(dt_str):
     tz = get_current_timezone()
     return tz.localize(datetime.strptime(dt_str, '%Y-%m-%d %H:%M %Z'))
 
-def update_new_games():
-    lp = LiquidpediaDotaParser(settings.PROJECT_DESCRIPTION)
-    lp.update_ongoing_and_upcoming_games()
 
 class LiquidpediaDotaParser:
     def __init__(self, app_name):
@@ -112,36 +110,35 @@ class LiquidpediaDotaParser:
 
     def check_games(self):
         games = GameNow.objects.all()
-        was_there_a_new_game=False
+        was_there_a_new_game = False
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=3):
                 time.sleep(40)
-                if timezone.now() > game.starttime+timedelta(hours=10):
+                if timezone.now() > game.starttime + timedelta(hours=10):
                     GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
-                flag2=False
+                is_second_link = False
                 try:
                     soup, _ = self.lp.parse(f'{game.team1.link}/Played_Matches')
                 except:
                     try:
-                        soup, _ =self.lp.parse(f'{game.team2.link}/Played_Matches')
-                        flag2=True
+                        soup, _ = self.lp.parse(f'{game.team2.link}/Played_Matches')
+                        is_second_link = True
                     except:
-                        game.delete()
+                        GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
                         continue
                 trs = soup.find_all('tr')
                 for tr in trs:
                     tds = tr.find_all('td')
                     data = {'start_time': "", "tier": None, 'tournament': None, 'score': [], 'team2': ""}
-                    text = 0
-                    data_t = Tournament()
-                    flag = True
+                    year = 0
+                    has_game_errors = False
                     for i, td in enumerate(tds):
                         if i == 0:
-                            text = td.text[:4]
-                            if text == "":
-                                flag = True
+                            year = td.text[:4]
+                            if year == "":
+                                has_game_errors = True
                                 continue
-                            if int(text) < datetime.now().year:
+                            if int(year) < datetime.now().year:
                                 break
                             data['start_time'] += td.text + " "
                         elif i == 1:
@@ -149,16 +146,16 @@ class LiquidpediaDotaParser:
                             try:
                                 make_dt_game(data['start_time'])
                             except:
-                                flag = True
+                                has_game_errors = True
                                 break
                             data['start_time'] = make_dt_game(data['start_time'])
 
                         elif i == 2:
                             data['tier'] = td.text[2:]
-                        elif i == 3 and int(text) >= datetime.now().year:
+                        elif i == 3 and int(year) >= datetime.now().year:
                             tier, _ = Tier.objects.get_or_create(name=data['tier'])
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text)
-                            data['tournament'].tier=tier
+                            data['tournament'].tier = tier
                             data['tournament'].save()
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
@@ -177,24 +174,36 @@ class LiquidpediaDotaParser:
                             try:
                                 data['team2'] = Team.objects.get(link=temp)
                             except:
-                                flag = True
+                                has_game_errors = True
                                 break
-                    if flag == False:
-                        if int(text) >= datetime.now().year:
-                            if (Game.objects.filter(starttime=data['start_time'], team2=game.team1).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team1).count() == 0 and flag2==False) or (Game.objects.filter(starttime=data['start_time'], team2=game.team2).count()+Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() == 0 and flag2==True):
-                                if game.starttime!=data["start_time"]:
+                    if not has_game_errors:
+                        if int(year) >= datetime.now().year:
+                            if (Game.objects.filter(starttime=data['start_time'],
+                                                    team2=game.team1).count() + Game.objects.filter(
+                                    starttime=data['start_time'],
+                                    team1=game.team1).count() == 0 and is_second_link == False) or (
+                                    Game.objects.filter(starttime=data['start_time'],
+                                                        team2=game.team2).count() + Game.objects.filter(
+                                    starttime=data['start_time'], team1=game.team2).count() == 0 and is_second_link == True):
+                                if game.starttime != data["start_time"]:
                                     continue
-                                game_new, is_created_now = Game.objects.get_or_create(team1=game.team1, team2=game.team2,
-                                                           team1_score=data['score'][0], team2_score=data['score'][1],
-                                                           tournament=data['tournament'], starttime=data['start_time'],predict=game.predict)
+                                game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
+                                                                                      team2=game.team2,
+                                                                                      team1_score=data['score'][0],
+                                                                                      team2_score=data['score'][1],
+                                                                                      tournament=data['tournament'],
+                                                                                      starttime=data['start_time'],
+                                                                                      predict=game.predict)
                                 if is_created_now:
                                     calculate_team_power(game_new.team1)
                                     calculate_team_power(game_new.team2)
                                     statistics_collection(game_new)
-                                    was_there_a_new_game=True
-                                    GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
-        if was_there_a_new_game==True:
-            update_new_games()
+                                    was_there_a_new_game = True
+                                    GameNow.objects.filter(starttime=game.starttime, team1=game.team1,
+                                                           team2=game.team2).delete()
+        if was_there_a_new_game:
+            self.update_ongoing_and_upcoming_games()
+
     def update_ongoing_and_upcoming_games(self):
         time.sleep(30)
         games = self.dota_p.get_upcoming_and_ongoing_games()
