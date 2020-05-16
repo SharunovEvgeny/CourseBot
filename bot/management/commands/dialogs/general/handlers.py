@@ -10,7 +10,7 @@ from aiogram.dispatcher.filters.state import StatesGroup
 
 from . import texts, keyboards
 from ...load_all import bot, dp
-from bot.models import BotUser, GameNow, Game, Statistic
+from bot.models import BotUser, GameNow, Game, Statistic, Team
 from bot.management.commands.modules.filters import *
 from datetime import timedelta
 from django.utils import timezone
@@ -50,9 +50,11 @@ async def help_(message: types.Message):
                                kb=keyboards.menu)
 
 
-@dp.callback_query_handler(Button("link"), state='*')
-async def link_(call: CallbackQuery):
-    await edit_or_send_message(bot, call, text=await texts.link(BotUser, bot, call), kb=keyboards.back)
+@dp.callback_query_handler(Button("info"), state='*')
+async def info_(call: CallbackQuery, state: FSMContext, teams=None, team_id=None):
+    if not teams:
+        teams = Team.objects.order_by('power')
+    await edit_or_send_message(bot, call, text=await texts.info(), kb=await keyboards.info(teams, team_id))
 
 
 @dp.callback_query_handler(Button("ref"), state='*')
@@ -79,9 +81,8 @@ async def get_game_id(state):
 
 @dp.callback_query_handler(Button("matches"), state='*')
 async def matches_(call, state: FSMContext, games=None):
-    GameNow.objects.order_by("starttime")
     game_id = await get_game_id(state)
-    games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20))[game_id:][
+    games = GameNow.objects.filter(starttime__lt=timezone.now() + timedelta(hours=20)).order_by('starttime')[game_id:][
             :OFFSET] if not games else games[game_id:][:OFFSET]
     text = f"<b>Страница №{(game_id // OFFSET) + 1}</b>\n"
     text += "".join([await texts.matches(game) for game in games])
