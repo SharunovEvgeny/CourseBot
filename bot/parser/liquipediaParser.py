@@ -207,7 +207,7 @@ class LiquidpediaDotaParser:
             self.update_ongoing_and_upcoming_games()
 
     def update_ongoing_and_upcoming_games(self):
-        time.sleep(30)
+        time.sleep(40)
         games = self.dota_p.get_upcoming_and_ongoing_games()
         for game in games:
             try:
