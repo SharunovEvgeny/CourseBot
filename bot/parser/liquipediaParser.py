@@ -41,6 +41,7 @@ class LiquidpediaDotaParser:
             team, _ = Team.objects.get_or_create(name=y.get("title"), link=y.get('href')[7:])
             team.save()
 
+
     def update_played_games(self):
         teams = Team.objects.all()
         time.sleep(30)
@@ -216,8 +217,9 @@ class LiquidpediaDotaParser:
                 continue
             GameNow.objects.filter(team1=team1,
                                    team2=team2,
-                                   starttime__range=(make_dt(game['start_time']) - timedelta(minutes=50),
-                                                     make_dt(game['start_time']) + timedelta(minutes=50))).delete()
+                                   tournament=game["tournament"],
+                                   starttime__range=(make_dt(game['start_time']) - timedelta(hours=3),
+                                                     make_dt(game['start_time']) + timedelta(hours=3))).delete()
 
             game_obj, g = GameNow.objects.get_or_create(team1=team1,
                                                         team2=team2,
