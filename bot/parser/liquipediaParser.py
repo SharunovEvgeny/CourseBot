@@ -217,7 +217,6 @@ class LiquidpediaDotaParser:
                 continue
             GameNow.objects.filter(team1=team1,
                                    team2=team2,
-                                   tournament=game["tournament"],
                                    starttime__range=(make_dt(game['start_time']) - timedelta(hours=3),
                                                      make_dt(game['start_time']) + timedelta(hours=3))).delete()
 
