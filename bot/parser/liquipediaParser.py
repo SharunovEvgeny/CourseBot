@@ -115,7 +115,7 @@ class LiquidpediaDotaParser:
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=3):
                 time.sleep(40)
-                if timezone.now() > game.starttime + timedelta(hours=10):
+                if timezone.now() > game.starttime + timedelta(hours=27):
                     GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
                 is_second_link = False
                 try:
