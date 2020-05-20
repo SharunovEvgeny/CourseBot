@@ -133,7 +133,6 @@ class LiquidpediaDotaParser:
                     data = {'start_time': "", "tier": None, 'tournament': None, 'score': [], 'team2': ""}
                     year = 0
                     has_game_errors = False
-                    logging.info("Mathes NEW")
                     for i, td in enumerate(tds):
                         if i == 0:
                             year = td.text[:4]
@@ -144,6 +143,7 @@ class LiquidpediaDotaParser:
                                 break
                             data['start_time'] += td.text + " "
                         elif i == 1:
+                            logging.info("Mathes NEW")
                             data['start_time'] += td.text
                             try:
                                 make_dt_game(data['start_time'])
@@ -182,18 +182,22 @@ class LiquidpediaDotaParser:
                             temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                             try:
                                 data['team2'] = Team.objects.get(link=temp)
+                                logging.info(f"{data['team2']}")
                             except:
                                 has_game_errors = True
                                 logging.info("team2 not find")
                                 break
                     if not has_game_errors:
+                        logging.info("game has not error")
                         if int(year) >= datetime.now().year:
+                            logging.info(f"{Game.objects.filter(starttime=data['start_time'],team2=game.team1).count() + Game.objects.filter(starttime=data['start_time'],team1=game.team1).count()}")
                             if (Game.objects.filter(starttime=data['start_time'],
                                                     team2=game.team1).count() + Game.objects.filter(
                                 starttime=data['start_time'],
                                 team1=game.team1).count() == 0 and is_second_link == False) or (
                                     Game.objects.filter(starttime=data['start_time'],
                                                              team2=game.team2).count() + Game.objects.filter(starttime=data['start_time'], team1=game.team2).count()==0 and is_second_link == True):
+                                logging.info("ALL")
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
                                                                                       team2=game.team2,
                                                                                       team1_score=data['score'][0],
