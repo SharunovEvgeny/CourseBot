@@ -41,7 +41,6 @@ class LiquidpediaDotaParser:
             team, _ = Team.objects.get_or_create(name=y.get("title"), link=y.get('href')[7:])
             team.save()
 
-
     def update_played_games(self):
         teams = Team.objects.all()
         time.sleep(30)
@@ -150,6 +149,9 @@ class LiquidpediaDotaParser:
                                 has_game_errors = True
                                 break
                             data['start_time'] = make_dt_game(data['start_time'])
+                            if game.starttime != data["start_time"]:
+                                has_game_errors = True
+                                break
 
                         elif i == 2:
                             data['tier'] = td.text[2:]
@@ -183,12 +185,8 @@ class LiquidpediaDotaParser:
                                                     team2=game.team1).count() + Game.objects.filter(
                                 starttime=data['start_time'],
                                 team1=game.team1).count() == 0 and is_second_link == False) or (
-                                    Game.objects.filter(starttime=data['start_time'],
-                                                        team2=game.team2).count() + Game.objects.filter(
-                                starttime=data['start_time'],
-                                team1=game.team2).count() == 0 and is_second_link == True):
-                                if game.starttime != data["start_time"]:
-                                    continue
+                                    0 == Game.objects.filter(starttime=data['start_time'],
+                                                             team2=game.team2).count() + Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() and is_second_link == True):
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
                                                                                       team2=game.team2,
                                                                                       team1_score=data['score'][0],
