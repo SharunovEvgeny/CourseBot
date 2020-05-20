@@ -5,7 +5,7 @@ from liquipediapy import dota, liquipediapy
 from django.conf import settings
 from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
-
+import logging
 from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict, \
     statistics_collection
 
@@ -127,11 +127,13 @@ class LiquidpediaDotaParser:
                         GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
                         continue
                 trs = soup.find_all('tr')
+                logging.info(f"Start {game.team1}")
                 for tr in trs:
                     tds = tr.find_all('td')
                     data = {'start_time': "", "tier": None, 'tournament': None, 'score': [], 'team2': ""}
                     year = 0
                     has_game_errors = False
+                    logging.info("Mathes NEW")
                     for i, td in enumerate(tds):
                         if i == 0:
                             year = td.text[:4]
@@ -145,12 +147,15 @@ class LiquidpediaDotaParser:
                             data['start_time'] += td.text
                             try:
                                 make_dt_game(data['start_time'])
+                                logging.info("try make dt")
                             except:
                                 has_game_errors = True
+                                logging.info("not make dt game")
                                 break
                             data['start_time'] = make_dt_game(data['start_time'])
                             if game.starttime != data["start_time"]:
                                 has_game_errors = True
+                                logging.info("not true data")
                                 break
 
                         elif i == 2:
@@ -160,6 +165,7 @@ class LiquidpediaDotaParser:
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text)
                             data['tournament'].tier = tier
                             data['tournament'].save()
+                            logging.info("get or create Tournament")
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
                             x = td.text.split()
@@ -178,6 +184,7 @@ class LiquidpediaDotaParser:
                                 data['team2'] = Team.objects.get(link=temp)
                             except:
                                 has_game_errors = True
+                                logging.info("team2 not find")
                                 break
                     if not has_game_errors:
                         if int(year) >= datetime.now().year:
@@ -185,8 +192,8 @@ class LiquidpediaDotaParser:
                                                     team2=game.team1).count() + Game.objects.filter(
                                 starttime=data['start_time'],
                                 team1=game.team1).count() == 0 and is_second_link == False) or (
-                                    0 == Game.objects.filter(starttime=data['start_time'],
-                                                             team2=game.team2).count() + Game.objects.filter(starttime=data['start_time'], team1=game.team2).count() and is_second_link == True):
+                                    Game.objects.filter(starttime=data['start_time'],
+                                                             team2=game.team2).count() + Game.objects.filter(starttime=data['start_time'], team1=game.team2).count()==0 and is_second_link == True):
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
                                                                                       team2=game.team2,
                                                                                       team1_score=data['score'][0],
