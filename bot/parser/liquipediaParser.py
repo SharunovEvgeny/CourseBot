@@ -5,7 +5,6 @@ from liquipediapy import dota, liquipediapy
 from django.conf import settings
 from bot.models import Player, Team, Game, Tournament, GameNow, Tier, Coefficient
 from datetime import timedelta, datetime
-import logging
 from bot.prediction.functions import calculate_team_power, calculate_all_teams_power, game_predict, \
     statistics_collection
 
@@ -112,7 +111,7 @@ class LiquidpediaDotaParser:
         games = GameNow.objects.all()
         was_there_a_new_game = False
         for game in games:
-            if timezone.now() > game.starttime + timedelta(hours=3):
+            if timezone.now() > game.starttime + timedelta(hours=4):
                 time.sleep(40)
                 if timezone.now() > game.starttime + timedelta(hours=27):
                     GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
@@ -127,7 +126,6 @@ class LiquidpediaDotaParser:
                         GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
                         continue
                 trs = soup.find_all('tr')
-                logging.info(f"Start {game.team1}")
                 for tr in trs:
                     tds = tr.find_all('td')
                     data = {'start_time': "", "tier": None, 'tournament': None, 'score': [], 'team2': ""}
@@ -143,19 +141,16 @@ class LiquidpediaDotaParser:
                                 break
                             data['start_time'] += td.text + " "
                         elif i == 1:
-                            logging.info("Mathes NEW")
+
                             data['start_time'] += td.text
                             try:
                                 make_dt_game(data['start_time'])
-                                logging.info("try make dt")
                             except:
                                 has_game_errors = True
-                                logging.info("not make dt game")
                                 break
                             data['start_time'] = make_dt_game(data['start_time'])
                             if game.starttime != data["start_time"]:
                                 has_game_errors = True
-                                logging.info("not true data")
                                 break
 
                         elif i == 2:
@@ -165,7 +160,6 @@ class LiquidpediaDotaParser:
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text)
                             data['tournament'].tier = tier
                             data['tournament'].save()
-                            logging.info("get or create Tournament")
                         # No, i don't forget i == 4, that is duplication!!!
                         elif i == 5:
                             x = td.text.split()
@@ -182,22 +176,18 @@ class LiquidpediaDotaParser:
                             temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                             try:
                                 data['team2'] = Team.objects.get(link=temp)
-                                logging.info(f"{data['team2']}")
                             except:
                                 has_game_errors = True
-                                logging.info("team2 not find")
                                 break
                     if not has_game_errors:
-                        logging.info("game has not error")
                         if int(year) >= datetime.now().year:
-                            logging.info(f"{Game.objects.filter(starttime=data['start_time'],team2=game.team1).count() + Game.objects.filter(starttime=data['start_time'],team1=game.team1).count()}")
+
                             if (Game.objects.filter(starttime=data['start_time'],
                                                     team2=game.team1).count() + Game.objects.filter(
                                 starttime=data['start_time'],
                                 team1=game.team1).count() == 0 and is_second_link == False) or (
                                     Game.objects.filter(starttime=data['start_time'],
                                                              team2=game.team2).count() + Game.objects.filter(starttime=data['start_time'], team1=game.team2).count()==0 and is_second_link == True):
-                                logging.info("ALL")
                                 game_new, is_created_now = Game.objects.get_or_create(team1=game.team1,
                                                                                       team2=game.team2,
                                                                                       team1_score=data['score'][0],
