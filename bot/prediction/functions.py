@@ -1,4 +1,24 @@
+from django.db.models import Q
+
 from bot.models import GameNow, Team, Game, Statistic, Coefficient
+
+
+def get_last_games(team: Team, n=5):
+    return Game.objects.filter(Q(team1=team) | Q(team2=team)).oreder_by("starttime")[:n]
+
+
+def get_last_games_power(team: Team, last_games):
+    power = 0
+    for game in last_games:
+        tier = game.tournament.tier
+        if game.team1 == team:
+            power += game.team1_score * tier.coefficient
+        else:
+            power += game.team2_score * tier.coefficient
+    if not last_games:
+        return 0
+    else:
+        return power / len(last_games)
 
 
 def game_predict(game: GameNow):
@@ -6,13 +26,27 @@ def game_predict(game: GameNow):
     second_joint_games = game.team2.team2_game.filter(team2=game.team1)
     join_coef = Coefficient.objects.get(name='joint_games_cof')
     format_coef = Coefficient.objects.get(name="format_cof")
-    format_coef=format_coef.value
+    last_games_team1 = get_last_games(game.team1)
+    last_games_team2 = get_last_games(game.team2)
+    last_power_team1 = get_last_games_power(game.team1, last_games_team1)
+    last_power_team2 = get_last_games_power(game.team2, last_games_team2)
+    try:
+        last_games_coef = last_power_team1 / (last_power_team1 + last_power_team2) * Coefficient.objects.get(
+            name="last_game_coef")
+    except:
+        last_games_coef = 0
+    if last_power_team1 < last_power_team2:
+        last_games_coef *= -1
+    elif last_power_team1==last_power_team2:
+        last_games_coef=0
+    format_coef = format_coef.value
     score1 = 0
     score2 = 0
     try:
-        format_game_coef = (1 - abs((game.team1.power - game.team2.power)/(game.team1.power+game.team2.power))) * format_coef
+        format_game_coef = (1 - abs(
+            (game.team1.power - game.team2.power) / (game.team1.power + game.team2.power))) * format_coef
     except:
-        format_game_coef=0
+        format_game_coef = 0
     if game.team1.power < game.team2.power:
         format_game_coef *= -1
     if game.format == "Bo1" or game.format == "Bo2":
@@ -36,7 +70,7 @@ def game_predict(game: GameNow):
 
     if game.team1.power + game.team2.power != 0:
         predict = ((game.team1.power / (
-                    game.team1.power + game.team2.power) * 100) + joint_games_cof+format_game_coef) // 1
+                game.team1.power + game.team2.power) * 100) + joint_games_cof + format_game_coef + last_games_coef) // 1
     return predict
 
 
@@ -50,13 +84,13 @@ def calculate_power_cur_games(games):
 
 
 def calculate_team_power(team):
-    team.power=0
+    team.power = 0
     team.save()
     games1 = Game.objects.filter(team1=team)
     games2 = Game.objects.filter(team2=team)
     for game1 in games1:
         tier = game1.tournament.tier
-        team.power += game1.team1_score*tier.coefficient
+        team.power += game1.team1_score * tier.coefficient
         team.save()
     for game2 in games2:
         tier = game2.tournament.tier
