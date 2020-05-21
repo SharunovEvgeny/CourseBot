@@ -4,7 +4,7 @@ from bot.models import GameNow, Team, Game, Statistic, Coefficient
 
 
 def get_last_games(team: Team, n=5):
-    return Game.objects.filter(Q(team1=team) | Q(team2=team)).oreder_by("starttime")[:n]
+    return Game.objects.filter(Q(team1=team) | Q(team2=team)).order_by("-starttime")[:n]
 
 
 def get_last_games_power(team: Team, last_games):
@@ -24,22 +24,21 @@ def get_last_games_power(team: Team, last_games):
 def game_predict(game: GameNow):
     first_joint_games = game.team1.team1_game.filter(team2=game.team2)
     second_joint_games = game.team2.team2_game.filter(team2=game.team1)
-    join_coef = Coefficient.objects.get(name='joint_games_cof')
-    format_coef = Coefficient.objects.get(name="format_cof")
+    join_coef = Coefficient.objects.get(name='joint_games_cof').value
+    format_coef = Coefficient.objects.get(name="format_cof").value
     last_games_team1 = get_last_games(game.team1)
     last_games_team2 = get_last_games(game.team2)
     last_power_team1 = get_last_games_power(game.team1, last_games_team1)
     last_power_team2 = get_last_games_power(game.team2, last_games_team2)
     try:
         last_games_coef = last_power_team1 / (last_power_team1 + last_power_team2) * Coefficient.objects.get(
-            name="last_game_coef")
+            name="last_game_coef").value
     except:
         last_games_coef = 0
     if last_power_team1 < last_power_team2:
         last_games_coef *= -1
     elif last_power_team1==last_power_team2:
         last_games_coef=0
-    format_coef = format_coef.value
     score1 = 0
     score2 = 0
     try:
