@@ -12,6 +12,6 @@ async def team_info(team):
                             f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n")
 
     return (f"<b>{team.name}</b>\n"
-            f"Сила: {team.power}\n"
-            f"Последние 5 матчей:\n"
+            f"<b>Сила:</b> {round(team.power,2)}\n\n"
+            f"<b>Последние 3 матча:</b>\n\n"
             f"{last_games_text}")
