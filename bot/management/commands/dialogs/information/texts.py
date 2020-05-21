@@ -8,8 +8,9 @@ async def team_info(team):
         last_games_text += (f"{game.team1}\n"
                             f"Счёт: <b>{game.team1_score}:{game.team2_score}</b>\n"
                             f"{game.team2}\n"
+                            f"{'С' if game.predict>50 else 'победу второй'}\n"
                             f"{game.tournament}\n"
-                            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n\n\n")
+                            f"Начало: {timezone.localtime(game.starttime).strftime('%d.%m.%Y %H-%M')}\n")
 
     return (f"<b>{team.name}</b>\n"
             f"<b>Сила:</b> {round(team.power,2)}\n\n"

@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.utils.exceptions import MessageNotModified
 
 
-async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None, text=None):
+async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None, text=None,disable_web=False):
     message = message_or_call if isinstance(message_or_call, types.Message) else message_or_call.message
     try:
         await bot.edit_message_text(
@@ -11,6 +11,7 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
             text=text,
             parse_mode=parse_mode,
             reply_markup=kb,
+            disable_web_page_preview=disable_web
         )
     except Exception as e:
         if type(e) == MessageNotModified:
@@ -21,4 +22,5 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
                 text=text,
                 parse_mode=parse_mode,
                 reply_markup=kb,
+                disable_web_page_preview=disable_web
             )
