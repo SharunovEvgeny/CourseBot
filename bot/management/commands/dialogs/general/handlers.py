@@ -37,6 +37,7 @@ async def start_(message: types.Message):
         text += f"С возвращением! {user.full_name}\n"
     text += await texts.menu(BotUser, user, bot)
     await edit_or_send_message(bot, message, text=text, kb=keyboards.menu)
+    await message.delete()
 
 
 @dp.callback_query_handler(Button("menu"), state='*')
@@ -113,3 +114,8 @@ async def prev_(call, state: FSMContext):
     game_id = game_id - OFFSET if game_id - OFFSET >= 0 else len(games) - 1 - (len(games) - 1) % OFFSET
     await state.set_data({'game_id': game_id})
     await matches_(call, state, games)
+
+
+@dp.message_handler()
+async def delete_any_msg(message: types.Message):
+    await message.delete()
