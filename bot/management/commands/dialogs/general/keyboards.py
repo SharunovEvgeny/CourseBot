@@ -7,8 +7,8 @@ keyboard v 1.0
 :List of :Dicts where first is :Str name, last is :Str callback.
 """
 
-menu = KeyboardInline([{"Матчи": "matches", "Статистика": "stat"},
-                       {"Информация": "info", "Рефераллы": "ref"}]).get()
+menu = KeyboardInline([{"Прогнозы": "matches", "Статистика": "stat"},
+                       {"Команды": "info", "Рефералы": "ref"}]).get()
 
 matches = KeyboardInline([{"<-": "prev", "->": "next"},
                           {"Меню": "menu"}]).get()

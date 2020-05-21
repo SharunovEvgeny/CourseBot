@@ -3,12 +3,9 @@ from django.utils import timezone
 
 async def menu(BotUser, user, bot):
     return ("Это бот для <b>прогнозов на матчи по Dota 2 🥳</b>\n"
-            f"Всего пользователей {BotUser.objects.count()}\n"
-            "Посмотрите матчи на сегодня по кнопке <b>Матчи</b>\n"
-            "Посмотрите статистику бота по кнопке <b>Статистика</b>\n"
+            f"Всего пользователей {BotUser.objects.count()}\n\n"
             "Вы можете позвать друзей по своей ссылке:\n"
-            f"https://t.me/{(await bot.me).username}?start={user.id}\n"
-            f"Посмотрите реферралов по кнопке <b>Реферралы</b>")
+            f"https://tele.gg/{(await bot.me).username}?start={user.id}\n")
 
 
 async def info(number):
@@ -34,7 +31,7 @@ async def stat(Statistic):
         risk = ((statistic.risk_bet_successful / statistic.risk_bet_all) * 100) // 1
     if statistic.unpredictable_bet_all != 0:
         unpred = ((statistic.unpredictable_bet_successful / statistic.unpredictable_bet_all) * 100) // 1
-    return (f"Всего ставок:  {statistic.all_bet_successful} / {statistic.bet_all}  {all}%\n\n"
-            f"Надёжные ставки:  {statistic.safe_bet_successful} / {statistic.safe_bet_all}  {safe}%\n\n"
-            f"Рискованные ставки:  {statistic.risk_bet_successful} / {statistic.risk_bet_all}  {risk}%\n\n"
-            f"Непредсказуемые ставки:  {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all}  {unpred}%\n\n")
+    return (f"🔷Всего:  {statistic.all_bet_successful} / {statistic.bet_all}  {all}%\n\n"
+            f"🟢Надёжные:  {statistic.safe_bet_successful} / {statistic.safe_bet_all}  {safe}%\n\n"
+            f"🟡Рискованные:  {statistic.risk_bet_successful} / {statistic.risk_bet_all}  {risk}%\n\n"
+            f"🔴Непредсказуемые:  {statistic.unpredictable_bet_successful} / {statistic.unpredictable_bet_all}  {unpred}%\n\n")

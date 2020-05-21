@@ -35,6 +35,7 @@ async def get_team_id(state):
 async def team_info(call, state: FSMContext):
     team = Team.objects.get(id=call.data.replace("team:", ""))
     await edit_or_send_message(bot, call, text=await texts.team_info(team), kb=keyboards.team_info)
+    await call.answer()
 
 
 @dp.callback_query_handler(Button("team:back"), state='*')
@@ -58,4 +59,5 @@ async def prev_(call, state: FSMContext):
     team_id = team_id - OFFSET if team_id - OFFSET >= 0 else len(teams) - 1 - (len(teams) - 1) % OFFSET
     await state.set_data({'team_id': team_id})
     await info_(call, state, teams, team_id)
+
 
