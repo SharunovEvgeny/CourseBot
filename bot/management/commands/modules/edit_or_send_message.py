@@ -17,6 +17,7 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
             if type(e) == MessageNotModified:
                 pass
             else:
+                await message.delete()
                 await bot.send_animation(
                     chat_id=message.chat.id,
                     animation=photo,
