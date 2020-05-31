@@ -10,11 +10,12 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
                 chat_id=message.chat.id,
                 message_id=message.message_id,
                 media=types.InputMediaAnimation(media=photo,
-                                                caption=text),
-                parse_mode=parse_mode,
+                                                caption=text,
+                                                parse_mode=parse_mode),
                 reply_markup=kb,
             )
         except Exception as e:
+            print(e, flush=True)
             if type(e) == MessageNotModified:
                 pass
             else:
@@ -25,6 +26,7 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
                     caption=text,
                     parse_mode=parse_mode,
                     reply_markup=kb,
+                    disable_notification=True
                 )
     else:
         try:
@@ -46,5 +48,6 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
                     text=text,
                     parse_mode=parse_mode,
                     reply_markup=kb,
-                    disable_web_page_preview=disable_web
+                    disable_web_page_preview=disable_web,
+                    disable_notification=True
                 )
