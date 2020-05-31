@@ -6,10 +6,11 @@ async def edit_or_send_message(bot, message_or_call, parse_mode='HTML', kb=None,
     message = message_or_call if isinstance(message_or_call, types.Message) else message_or_call.message
     if photo:
         try:
-            await bot.edit_message_caption(
+            await bot.edit_message_media(
                 chat_id=message.chat.id,
                 message_id=message.message_id,
-                text=text,
+                media=types.InputMediaAnimation(media=photo,
+                                                caption=text),
                 parse_mode=parse_mode,
                 reply_markup=kb,
             )

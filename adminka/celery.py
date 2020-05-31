@@ -12,11 +12,7 @@ celery_app.conf.timezone = settings.TIME_ZONE
 celery_app.conf.beat_schedule = {
      'check_is_games_end': {
          'task': 'adminka.tasks.check_is_games_end',
-         'schedule': crontab(minute='*/10'),
-    },
-    'update_played_games': {
-        'task': 'adminka.tasks.update_played_games',
-        'schedule': crontab(minute=0, hour=0, day_of_month=1),
+         'schedule': crontab(minute='*/12'),
     },
     'update_teams': {
         'task': 'adminka.tasks.update_teams',

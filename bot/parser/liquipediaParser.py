@@ -28,8 +28,6 @@ class LiquidpediaDotaParser:
         self.lp = liquipediapy(self.app_name, 'dota2')
 
     def update_teams(self):
-        Team.objects.all().delete()
-        time.sleep(2.3)
         soup, _ = self.lp.parse("Portal:Teams")
         ts = soup.find_all(["span class", "a", "href"])
         for i, y in enumerate(ts[24::2]):
@@ -113,7 +111,7 @@ class LiquidpediaDotaParser:
         for game in games:
             if timezone.now() > game.starttime + timedelta(hours=4):
                 time.sleep(40)
-                if timezone.now() > game.starttime + timedelta(hours=27):
+                if timezone.now() > game.starttime + timedelta(hours=51):
                     GameNow.objects.filter(starttime=game.starttime, team1=game.team1, team2=game.team2).delete()
                 is_second_link = False
                 try:

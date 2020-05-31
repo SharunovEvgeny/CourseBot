@@ -44,7 +44,6 @@ async def start_(message: types.Message):
         text += f"С возвращением! {user.full_name}\n"
     text += await texts.menu(BotUser, user, bot)
     await edit_or_send_message(bot, message, text=text, kb=keyboards.menu, photo=random.choice(photos), disable_web=True)
-    await message.delete()
 
 
 @dp.callback_query_handler(Button("menu"), state='*')
