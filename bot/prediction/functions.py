@@ -70,6 +70,9 @@ def game_predict(game: GameNow):
     if game.team1.power + game.team2.power != 0:
         predict = ((game.team1.power / (
                 game.team1.power + game.team2.power) * 100) + joint_games_cof + format_game_coef + last_games_coef) // 1
+    else:
+        predict = 50
+    predict = 100 if predict > 100 else predict
     return predict
 
 
