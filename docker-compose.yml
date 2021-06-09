@@ -1,13 +1,12 @@
 version: '3.3'
 services:
   db:
-    container_name: database
+    container_name: databaseBet
     ports:
       - 5432:5432
-    #network_mode: "host"
     image: postgres
-    environment:
-      POSTGRES_PASSWORD: example
+    env_file:
+      - ./.env
     restart: always
 
   redis:
@@ -19,7 +18,6 @@ services:
     container_name: server
     build: .
     command: python manage.py runserver 0.0.0.0:80
-      #python manage.py app
     volumes:
       - .:/code
     ports:

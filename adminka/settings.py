@@ -77,9 +77,9 @@ WSGI_APPLICATION = 'adminka.wsgi.application'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       'NAME': 'postgres',
-       'USER': 'postgres',
-       'PASSWORD': 'example',
+       'NAME': 'BetBotDB',
+       'USER': 'BetUser',
+       'PASSWORD': 'strNew2231023',
        'HOST': 'db',
        'PORT': 5432,
    }
