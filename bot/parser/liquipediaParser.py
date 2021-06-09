@@ -27,6 +27,30 @@ class LiquidpediaDotaParser:
         self.dota_p = dota(self.app_name)
         self.lp = liquipediapy(self.app_name, 'dota2')
 
+    def get_upcoming_and_ongoing_games(self):
+        games = []
+        soup, __ = self.dota_p.liquipedia.parse('Liquipedia:Upcoming_and_ongoing_matches')
+        matches = soup.find_all('table', class_='infobox_matches_content')
+        print(matches)
+        for match in matches:
+            game = {}
+            cells = match.find_all('td')
+            try:
+                game['team1'] = cells[0].find('span', class_='team-template-image-icon').find('a').get('title')
+                game['format'] = cells[1].find('abbr').get_text()
+                game['team2'] = cells[2].find('span', class_='team-template-image-icon').find('a').get('title')
+                game['start_time'] = cells[3].find('span', class_="timer-object").get_text()
+                game['tournament'] = cells[3].find('div').get_text().rstrip()
+                try:
+                    game['twitch_channel'] = cells[3].find('span', class_="timer-object").get('data-stream-twitch')
+                except AttributeError:
+                    pass
+                games.append(game)
+            except AttributeError:
+                continue
+
+        return games
+
     def update_teams(self):
         soup, _ = self.lp.parse("Portal:Teams")
         ts = soup.find_all(["span class", "a", "href"])
@@ -205,7 +229,7 @@ class LiquidpediaDotaParser:
 
     def update_ongoing_and_upcoming_games(self):
         time.sleep(40)
-        games = self.dota_p.get_upcoming_and_ongoing_games()
+        games = self.get_upcoming_and_ongoing_games()
         for game in games:
             try:
                 team1 = Team.objects.get(name=game['team1'])
