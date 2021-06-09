@@ -31,14 +31,13 @@ class LiquidpediaDotaParser:
         games = []
         soup, __ = self.dota_p.liquipedia.parse('Liquipedia:Upcoming_and_ongoing_matches')
         matches = soup.find_all('table', class_='infobox_matches_content')
-        print(matches)
         for match in matches:
             game = {}
             cells = match.find_all('td')
             try:
-                game['team1'] = cells[0].find('span', class_='team-template-image-icon').find('a').get('title')
+                game['team1'] = cells[0].find('span', class_='team-template-text').find('a').get('title')
                 game['format'] = cells[1].find('abbr').get_text()
-                game['team2'] = cells[2].find('span', class_='team-template-image-icon').find('a').get('title')
+                game['team2'] = cells[2].find('span', class_='team-template-text').find('a').get('title')
                 game['start_time'] = cells[3].find('span', class_="timer-object").get_text()
                 game['tournament'] = cells[3].find('div').get_text().rstrip()
                 try:
