@@ -27,6 +27,29 @@ class LiquidpediaDotaParser:
         self.dota_p = dota(self.app_name)
         self.lp = liquipediapy(self.app_name, 'dota2')
 
+    def get_upcoming_and_ongoing_games(self):
+        games = []
+        soup, __ = self.dota_p.liquipedia.parse('Liquipedia:Upcoming_and_ongoing_matches')
+        matches = soup.find_all('table', class_='infobox_matches_content')
+        for match in matches:
+            game = {}
+            cells = match.find_all('td')
+            try:
+                game['team1'] = cells[0].find('span', class_='team-template-text').find('a').get('title')
+                game['format'] = cells[1].find('abbr').get_text()
+                game['team2'] = cells[2].find('span', class_='team-template-text').find('a').get('title')
+                game['start_time'] = cells[3].find('span', class_="timer-object").get_text()
+                game['tournament'] = cells[3].find('div').get_text().rstrip()
+                try:
+                    game['twitch_channel'] = cells[3].find('span', class_="timer-object").get('data-stream-twitch')
+                except AttributeError:
+                    pass
+                games.append(game)
+            except AttributeError:
+                continue
+
+        return games
+
     def update_teams(self):
         soup, _ = self.lp.parse("Portal:Teams")
         ts = soup.find_all(["span class", "a", "href"])
@@ -75,11 +98,11 @@ class LiquidpediaDotaParser:
 
                     elif i == 2:
                         data['tier'] = td.text[2:]
-                    elif i == 3 and int(text) >= datetime.now().year:
+                    elif i == 4 and int(text) >= datetime.now().year:
                         tier, _ = Tier.objects.get_or_create(name=data['tier'])
                         data['tournament'], p = Tournament.objects.get_or_create(name=td.text, tier=tier)
                     # No, i don't forget i == 4, that is duplication!!!
-                    elif i == 5:
+                    elif i == 6:
                         x = td.text.split()
                         data['score'] = [x[0], x[2]]
                         if data['score'][0] == 'W':
@@ -90,7 +113,7 @@ class LiquidpediaDotaParser:
                             data['score'][0] = 0
                         if data['score'][1] == "W":
                             data['score'][1] = 1
-                    elif i == 6:
+                    elif i == 7:
                         temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                         try:
                             data['team2'] = Team.objects.get(link=temp)
@@ -153,13 +176,13 @@ class LiquidpediaDotaParser:
 
                         elif i == 2:
                             data['tier'] = td.text[2:]
-                        elif i == 3 and int(year) >= datetime.now().year:
+                        elif i == 4 and int(year) >= datetime.now().year:
                             tier, _ = Tier.objects.get_or_create(name=data['tier'])
                             data['tournament'], p = Tournament.objects.get_or_create(name=td.text)
                             data['tournament'].tier = tier
                             data['tournament'].save()
                         # No, i don't forget i == 4, that is duplication!!!
-                        elif i == 5:
+                        elif i == 6:
                             x = td.text.split()
                             data['score'] = [x[0], x[2]]
                             if data['score'][0] == 'W':
@@ -170,7 +193,7 @@ class LiquidpediaDotaParser:
                                 data['score'][0] = 0
                             if data['score'][1] == "W":
                                 data['score'][1] = 1
-                        elif i == 6:
+                        elif i == 7:
                             temp = list(td.find_all('a', href=True))[0].get('href')[7:]
                             try:
                                 data['team2'] = Team.objects.get(link=temp)
@@ -205,7 +228,7 @@ class LiquidpediaDotaParser:
 
     def update_ongoing_and_upcoming_games(self):
         time.sleep(40)
-        games = self.dota_p.get_upcoming_and_ongoing_games()
+        games = self.get_upcoming_and_ongoing_games()
         for game in games:
             try:
                 team1 = Team.objects.get(name=game['team1'])
